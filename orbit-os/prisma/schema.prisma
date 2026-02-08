@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User & Profile
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("USER") // ADMIN, USER
+  avatarUrl String?
+  projects  Project[]
+  timeLogs  TimeLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Project Engine
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  client      String?
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, ARCHIVED
+  priority    String   @default("MEDIUM") // HIGH, MEDIUM, LOW
+  startDate   DateTime?
+  endDate     DateTime?
+  
+  // Financials
+  totalBudget Float?
+  currency    String   @default("INR")
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  // Relations
+  milestones  Milestone[]
+  tasks       Task[]
+  timeLogs    TimeLog[]
+  documents   Document[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Financial Engine
+model Milestone {
+  id          String   @id @default(uuid())
+  title       String
+  amount      Float
+  status      String   @default("PENDING") // PENDING, PAID, OVERDUE
+  dueDate     DateTime?
+  
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Task & Time Engine
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  status      String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TimeLog {
+  id          String   @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int?     // in minutes
+  description String?
+  
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Documents
+model Document {
+  id          String   @id @default(uuid())
+  title       String
+  url         String
+  type        String   // CONTRACT, INVOICE, OTHER
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
