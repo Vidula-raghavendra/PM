@@ -76,7 +76,7 @@ export const ProjectService = {
         const { error } = await supabase.from("projects").delete().eq("id", id);
         if (error) throw error;
         return true;
-    }
+    },
     async createDetailed(data: any, userId: string) {
         const session = await getSession();
         const supabase = createSupabaseClient(session?.accessToken);
