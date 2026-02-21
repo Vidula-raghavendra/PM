@@ -41,13 +41,22 @@ export default async function ProjectsPage() {
                 </div>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {projects.map((project) => {
-                        const totalTasks = project.tasks.length;
-                        const completedTasks = project.tasks.filter(t => t.status === 'DONE').length;
+                    {projects.map((project: any) => {
+                        const tasks = project.tasks || [];
+                        const totalTasks = tasks.length;
+                        const completedTasks = tasks.filter((t: any) => t.status === "DONE").length;
                         const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
                         return (
-                            <ProjectCard key={project.id} project={{ ...project, progress }} />
+                            <ProjectCard
+                                key={project.id}
+                                project={{
+                                    ...project,
+                                    progress,
+                                    totalBudget: project.total_budget || project.totalBudget,
+                                    endDate: project.end_date || project.endDate,
+                                }}
+                            />
                         );
                     })}
                 </div>
