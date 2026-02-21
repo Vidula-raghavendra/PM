@@ -57,7 +57,7 @@ export default function RegisterPage() {
                         <div className="space-y-6">
                             {/* Name */}
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Identity</Label>
+                                <Label htmlFor="name" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Legal Name</Label>
                                 <Input
                                     id="name"
                                     name="name"
@@ -88,7 +88,7 @@ export default function RegisterPage() {
 
                             {/* Password */}
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Secure Key</Label>
+                                <Label htmlFor="password" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Account Password</Label>
                                 <Input
                                     id="password"
                                     name="password"

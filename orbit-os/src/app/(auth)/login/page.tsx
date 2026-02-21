@@ -57,7 +57,7 @@ export default function LoginPage() {
                         <div className="space-y-6">
                             {/* Email */}
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Authorized Email</Label>
+                                <Label htmlFor="email" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Email Address</Label>
                                 <Input
                                     id="email"
                                     name="email"
@@ -73,7 +73,7 @@ export default function LoginPage() {
 
                             {/* Password */}
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Private Key</Label>
+                                <Label htmlFor="password" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Account Password</Label>
                                 <Input
                                     id="password"
                                     name="password"
