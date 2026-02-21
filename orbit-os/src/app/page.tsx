@@ -150,7 +150,7 @@ export default function LandingPage() {
                 <div className="text-left space-y-8">
                   <h3 className="text-4xl font-serif italic tracking-tighter">Lifetime Beta Residency</h3>
                   <p className="text-black/60 leading-relaxed">Early access to the full operating suite, including future AI-driven optimizations. One-time entry for pioneering residents.</p>
-                  <Button asChild block className="rounded-full h-16 bg-black text-white hover:bg-neutral-800 text-[11px] tracking-[0.2em] font-bold uppercase w-full sm:w-auto px-12">
+                  <Button asChild className="rounded-full h-16 bg-black text-white hover:bg-neutral-800 text-[11px] tracking-[0.2em] font-bold uppercase w-full sm:w-auto px-12">
                     <Link href="/register">Request Invite</Link>
                   </Button>
                 </div>
