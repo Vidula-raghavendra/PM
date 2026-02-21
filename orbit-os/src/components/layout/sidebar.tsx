@@ -12,13 +12,14 @@ import {
     Users,
     Target,
     Settings,
+    Calendar as CalendarIcon,
 } from "lucide-react";
 
 const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
     { name: "Finance", href: "/dashboard/finance", icon: IndianRupee },
-    { name: "Time", href: "/dashboard/time", icon: Clock },
+    { name: "Calendar", href: "/dashboard/calendar", icon: CalendarIcon },
     { name: "Contracts", href: "/dashboard/contracts", icon: FileText },
     { name: "People", href: "/dashboard/people", icon: Users },
     { name: "Goals", href: "/dashboard/goals", icon: Target },

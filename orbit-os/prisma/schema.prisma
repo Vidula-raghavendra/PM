@@ -2,11 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -18,8 +19,20 @@ model User {
   name      String?
   role      String   @default("USER") // ADMIN, USER
   avatarUrl String?
-  projects  Project[]
-  timeLogs  TimeLog[]
+
+  // Profile Fields
+  phone     String?
+  gender    String?
+  sector    String?
+  purpose   String?
+
+  // Relations
+  projects      Project[]       @relation("OwnerProjects")
+  collaboration Collaborator[]
+  timeLogs      TimeLog[]
+  goals         Goal[]
+  events        Event[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -31,25 +44,45 @@ model Project {
   description String?
   client      String?
   status      String   @default("ACTIVE") // ACTIVE, COMPLETED, ARCHIVED
-  priority    String   @default("MEDIUM") // HIGH, MEDIUM, LOW
   startDate   DateTime?
   endDate     DateTime?
   
   // Financials
-  totalBudget Float?
+  totalBudget Float?   @default(0)
   currency    String   @default("INR")
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  ownerId     String
+  owner       User     @relation("OwnerProjects", fields: [ownerId], references: [id])
 
   // Relations
-  milestones  Milestone[]
-  tasks       Task[]
-  timeLogs    TimeLog[]
-  documents   Document[]
+  collaborators Collaborator[]
+  milestones    Milestone[]
+  tasks         Task[]
+  timeLogs      TimeLog[]
+  documents     Document[]
+  events        Event[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// Collaboration Engine
+model Collaborator {
+  id        String @id @default(uuid())
+  
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+  
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+  
+  role            String @default("MEMBER")
+  color           String @default("#3b82f6") // Default blue
+  splitPercentage Float  @default(0) // 0-100
+
+  joinedAt  DateTime @default(now())
+
+  @@unique([userId, projectId])
 }
 
 // Financial Engine
@@ -57,8 +90,11 @@ model Milestone {
   id          String   @id @default(uuid())
   title       String
   amount      Float
+  percentage  Float    @default(0) // % of total budget
   status      String   @default("PENDING") // PENDING, PAID, OVERDUE
-  dueDate     DateTime?
+  
+  startDate   DateTime?
+  dueDate     DateTime? // End Date
   
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id])
@@ -72,7 +108,9 @@ model Task {
   id          String   @id @default(uuid())
   title       String
   status      String   @default("TODO") // TODO, IN_PROGRESS, DONE
-  
+  priority    String   @default("MEDIUM")
+  dueDate     DateTime?
+
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id])
 
@@ -89,6 +127,40 @@ model TimeLog {
   
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Calendar Engine
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  type        String   @default("MEETING") // MEETING, CALL, DEADLINE
+  
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Goals Engine
+model Goal {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  targetDate  DateTime?
+  status      String   @default("IN_PROGRESS") // IN_PROGRESS, ACHIEVED, FAILED
+  
   userId      String
   user        User     @relation(fields: [userId], references: [id])
 

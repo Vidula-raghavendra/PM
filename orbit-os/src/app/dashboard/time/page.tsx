@@ -1,21 +1,14 @@
 
-import { decrypt } from "@/lib/auth/session";
-import { cookies } from "next/headers";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/auth/guard";
+import { DashboardService } from "@/services/dashboard.service";
 
 async function getTimeLogs() {
-    const session = await decrypt((await cookies()).get("session")?.value);
-    if (!session?.userId) return [];
-
-    return await prisma.timeLog.findMany({
-        where: { userId: session.userId as string },
-        include: { project: { select: { title: true } } },
-        orderBy: { startTime: "desc" },
-        take: 50,
-    });
+    const userId = await requireUser();
+    return await DashboardService.getRecentTimeLogs(userId);
 }
 
 function formatDuration(minutes: number) {

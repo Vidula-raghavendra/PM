@@ -1,24 +1,15 @@
 
-import { decrypt } from "@/lib/auth/session";
-import { cookies } from "next/headers";
 import { ProjectCard } from "@/components/projects/project-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/auth/guard";
+import { ProjectService } from "@/services/project.service";
 
 async function getProjects() {
-    const session = await decrypt((await cookies()).get("session")?.value);
-    if (!session?.userId) return [];
-
-    return await prisma.project.findMany({
-        where: { userId: session.userId as string },
-        orderBy: { updatedAt: "desc" },
-        include: {
-            tasks: { select: { status: true } }, // Minimal selection for progress calc
-        }
-    });
+    const userId = await requireUser();
+    return await ProjectService.getProjectsForUser(userId);
 }
 
 export default async function ProjectsPage() {

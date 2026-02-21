@@ -3,10 +3,8 @@
 import { z } from "zod";
 
 import { revalidatePath } from "next/cache";
-import { decrypt } from "@/lib/auth/session";
-import { cookies } from "next/headers";
-
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/auth/guard";
+import { DashboardService } from "@/services/dashboard.service";
 
 const timeLogSchema = z.object({
     projectId: z.string().min(1, { message: "Project is required" }),
@@ -15,15 +13,8 @@ const timeLogSchema = z.object({
     description: z.string().optional(),
 });
 
-async function getUserId() {
-    const cookie = (await cookies()).get("session")?.value;
-    const session = await decrypt(cookie);
-    return session?.userId as string | undefined;
-}
-
 export async function logTime(prevState: any, formData: FormData) {
-    const userId = await getUserId();
-    if (!userId) return { message: "Unauthorized" };
+    const userId = await requireUser();
 
     const result = timeLogSchema.safeParse(Object.fromEntries(formData));
 
@@ -43,15 +34,10 @@ export async function logTime(prevState: any, formData: FormData) {
     }
 
     try {
-        await prisma.timeLog.create({
-            data: {
-                projectId,
-                userId,
-                startTime: start,
-                endTime: end,
-                duration,
-                description,
-            }
+        await DashboardService.logTime(userId, {
+            projectId,
+            duration,
+            description: description || "Manual Log"
         });
     } catch (e) {
         return { message: "Failed to log time" };

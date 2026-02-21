@@ -1,12 +1,9 @@
 "use server";
 
 import { z } from "zod";
-
 import { redirect } from "next/navigation";
-import { decrypt } from "@/lib/auth/session";
-import { cookies } from "next/headers";
-
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/auth/guard";
+import { ProjectService } from "@/services/project.service";
 
 const projectSchema = z.object({
     title: z.string().min(1, { message: "Title is required" }),
@@ -19,17 +16,8 @@ const projectSchema = z.object({
     totalBudget: z.coerce.number().optional(),
 });
 
-async function getUserId() {
-    const cookie = (await cookies()).get("session")?.value;
-    const session = await decrypt(cookie);
-    return session?.userId as string | undefined;
-}
-
 export async function createProject(prevState: any, formData: FormData) {
-    const userId = await getUserId();
-    if (!userId) {
-        return { message: "Unauthorized" };
-    }
+    const userId = await requireUser();
 
     const result = projectSchema.safeParse(Object.fromEntries(formData));
 
@@ -42,18 +30,16 @@ export async function createProject(prevState: any, formData: FormData) {
     const { title, description, client, status, priority, startDate, endDate, totalBudget } = result.data;
 
     try {
-        await prisma.project.create({
-            data: {
-                title,
-                description,
-                client,
-                status,
-                priority,
-                startDate: startDate ? new Date(startDate) : undefined,
-                endDate: endDate ? new Date(endDate) : undefined,
-                totalBudget,
-                userId,
-            },
+        await ProjectService.create({
+            title,
+            description,
+            client,
+            status,
+            priority,
+            startDate: startDate ? new Date(startDate) : undefined,
+            endDate: endDate ? new Date(endDate) : undefined,
+            totalBudget,
+            owner: { connect: { id: userId } }
         });
     } catch (error) {
         console.error("Create Project Error:", error);
@@ -64,8 +50,7 @@ export async function createProject(prevState: any, formData: FormData) {
 }
 
 export async function updateProject(id: string, prevState: any, formData: FormData) {
-    const userId = await getUserId();
-    if (!userId) return { message: "Unauthorized" };
+    const userId = await requireUser();
 
     const result = projectSchema.safeParse(Object.fromEntries(formData));
 
@@ -75,17 +60,14 @@ export async function updateProject(id: string, prevState: any, formData: FormDa
     const { title, description, status, priority, startDate, endDate, totalBudget } = result.data;
 
     try {
-        await prisma.project.update({
-            where: { id },
-            data: {
-                title,
-                description,
-                status,
-                priority,
-                startDate: startDate ? new Date(startDate) : undefined,
-                endDate: endDate ? new Date(endDate) : undefined,
-                totalBudget,
-            }
+        await ProjectService.update(id, userId, {
+            title,
+            description,
+            status,
+            priority,
+            startDate: startDate ? new Date(startDate) : undefined,
+            endDate: endDate ? new Date(endDate) : undefined,
+            totalBudget,
         });
     } catch (e) {
         return { message: "Failed to update project" };
@@ -95,13 +77,12 @@ export async function updateProject(id: string, prevState: any, formData: FormDa
 }
 
 export async function deleteProject(id: string) {
-    const userId = await getUserId();
-    if (!userId) return { message: "Unauthorized" };
+    const userId = await requireUser();
 
     try {
-        await prisma.project.delete({ where: { id } });
+        await ProjectService.delete(id, userId);
     } catch (e) {
-        return { message: "Failed to delete project" };
+        console.error("Delete Project Error:", e);
     }
 
     redirect("/dashboard/projects");

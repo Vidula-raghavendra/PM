@@ -1,12 +1,12 @@
 "use server";
 
+// ... imports
 import { z } from "zod";
-
 import { redirect } from "next/navigation";
-import { saltAndHashPassword, verifyPassword } from "@/lib/auth/password";
-import { createSession, deleteSession } from "@/lib/auth/session";
-
-import { prisma } from "@/lib/prisma";
+// import { saltAndHashPassword, verifyPassword } from "@/auth/password"; // Removed
+import { createSession, deleteSession } from "@/auth/session";
+// import { UserService } from "@/services/user.service"; // Removed for Auth Step 1
+import { supabase } from "@/lib/supabaseClient";
 
 const signupSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters long." }).optional(),
@@ -36,42 +36,45 @@ export async function signup(prevState: any, formData: FormData) {
 
     const { email, password, name } = result.data;
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-        where: { email },
+    // Step 1: Supabase Signup
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                full_name: name,
+            }
+        }
     });
 
-    if (existingUser) {
+    if (error) {
+        console.error("Signup error:", error.message);
         return {
-            errors: {
-                email: ["User with this email already exists."],
-            },
+            // Map some common errors for better UX if needed
+            message: error.message || "Failed to create user.",
         };
     }
 
-    // Hash password
-    const hashedPassword = saltAndHashPassword(password);
+    if (data.session) {
+        await createSession(data.session.access_token, data.session.refresh_token);
 
-    // Create user
-    try {
-        const user = await prisma.user.create({
-            data: {
-                email,
-                password: hashedPassword,
-                name: name || undefined,
-                role: "USER",
-            },
+        // Step 2: Auto-Create User Profile
+        // We use the admin client to ensure we can write to the profiles table regardless of public RLS
+        const { createAdminClient } = await import("@/lib/supabaseClient");
+        const adminSupabase = createAdminClient();
+
+        await adminSupabase.from("profiles").insert({
+            id: data.user?.id,
+            email: email,
+            full_name: name || "",
+            // Default values
+            sector: "",
+            purpose: "",
         });
-
-        await createSession(user.id);
-    } catch (error) {
-        if (error instanceof Error) {
-            console.error(error.message);
-        }
-        return {
-            message: "Database Error: Failed to Create User.",
-        };
     }
+
+    // We will handle Profile creation in Step 2 (next tool call or implicit here? User said Step 2 is AFTER Step 1)
+    // For now, satisfy Step 1.
 
     redirect("/dashboard");
 }
@@ -87,31 +90,29 @@ export async function login(prevState: any, formData: FormData) {
 
     const { email, password } = result.data;
 
-    // Find user
-    const user = await prisma.user.findUnique({
-        where: { email },
+    // Step 1: Supabase Login
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
     });
 
-    if (!user) {
+    if (error) {
+        console.log("Login failed:", error.message);
         return {
             message: "Invalid credentials.",
         };
     }
 
-    // Verify password
-    const isValid = verifyPassword(password, user.password);
-
-    if (!isValid) {
-        return {
-            message: "Invalid credentials.",
-        };
+    if (data.session) {
+        await createSession(data.session.access_token, data.session.refresh_token);
     }
 
-    await createSession(user.id);
     redirect("/dashboard");
 }
 
 export async function logout() {
     await deleteSession();
+    // Also sign out from Supabase if we had a client-side session, but this is server action
+    await supabase.auth.signOut();
     redirect("/login");
 }

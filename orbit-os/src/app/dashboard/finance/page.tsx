@@ -1,29 +1,24 @@
 
-import { decrypt } from "@/lib/auth/session";
-import { cookies } from "next/headers";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IndianRupee, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/auth/guard";
+import { FinanceService } from "@/services/finance.service";
 
 async function getFinanceData() {
-    const session = await decrypt((await cookies()).get("session")?.value);
-    if (!session?.userId) return null;
+    const userId = await requireUser();
 
-    const milestones = await prisma.milestone.findMany({
-        where: { project: { userId: session.userId as string } },
-        include: { project: { select: { title: true } } },
-        orderBy: { dueDate: "asc" },
-    });
+    const milestones = await FinanceService.getMilestones(userId);
 
     const totalRevenue = milestones
-        .filter(m => m.status === "PAID")
-        .reduce((acc, m) => acc + m.amount, 0);
+        .filter((m: any) => m.status === "PAID")
+        .reduce((acc: number, m: any) => acc + m.amount, 0);
 
     const pendingRevenue = milestones
-        .filter(m => m.status === "PENDING")
-        .reduce((acc, m) => acc + m.amount, 0);
+        .filter((m: any) => m.status === "PENDING")
+        .reduce((acc: number, m: any) => acc + m.amount, 0);
 
     return { milestones, totalRevenue, pendingRevenue };
 }

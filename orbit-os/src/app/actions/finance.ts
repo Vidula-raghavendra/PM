@@ -1,12 +1,9 @@
 "use server";
 
 import { z } from "zod";
-
 import { revalidatePath } from "next/cache";
-import { decrypt } from "@/lib/auth/session";
-import { cookies } from "next/headers";
-
-import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/auth/guard";
+import { FinanceService } from "@/services/finance.service";
 
 const milestoneSchema = z.object({
     title: z.string().min(1, { message: "Title is required" }),
@@ -15,15 +12,8 @@ const milestoneSchema = z.object({
     projectId: z.string().min(1, { message: "Project is required" }),
 });
 
-async function getUserId() {
-    const cookie = (await cookies()).get("session")?.value;
-    const session = await decrypt(cookie);
-    return session?.userId as string | undefined;
-}
-
 export async function createMilestone(prevState: any, formData: FormData) {
-    const userId = await getUserId();
-    if (!userId) return { message: "Unauthorized" };
+    const userId = await requireUser();
 
     const result = milestoneSchema.safeParse(Object.fromEntries(formData));
 
@@ -34,14 +24,12 @@ export async function createMilestone(prevState: any, formData: FormData) {
     const { title, amount, dueDate, projectId } = result.data;
 
     try {
-        await prisma.milestone.create({
-            data: {
-                title,
-                amount,
-                dueDate: dueDate ? new Date(dueDate) : undefined,
-                projectId,
-                status: "PENDING",
-            }
+        await FinanceService.createMilestone({
+            title,
+            amount,
+            dueDate: dueDate ? new Date(dueDate) : undefined,
+            projectId,
+            status: "PENDING",
         });
     } catch (e) {
         return { message: "Failed to create milestone" };
@@ -53,14 +41,10 @@ export async function createMilestone(prevState: any, formData: FormData) {
 }
 
 export async function updateMilestoneStatus(id: string, status: "PENDING" | "PAID" | "OVERDUE") {
-    const userId = await getUserId();
-    if (!userId) return { message: "Unauthorized" };
+    const userId = await requireUser();
 
     try {
-        await prisma.milestone.update({
-            where: { id },
-            data: { status }
-        });
+        await FinanceService.updateMilestoneStatus(id, status, userId);
     } catch (e) {
         return { message: "Failed to update status" };
     }
