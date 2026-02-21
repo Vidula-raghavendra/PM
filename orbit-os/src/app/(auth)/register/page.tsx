@@ -1,25 +1,21 @@
+
 "use client";
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { signup } from "@/app/actions/auth";
 import Link from "next/link";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowRight, Orbit } from "lucide-react";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
 
     return (
-        <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Creating account..." : "Sign Up"}
+        <Button type="submit" className="w-full h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-[13px] tracking-widest uppercase font-bold" disabled={pending}>
+            {pending ? "Creating Space..." : "Begin Your Journey"}
         </Button>
     );
 }
@@ -28,97 +24,109 @@ export default function RegisterPage() {
     const [state, action] = useActionState(signup, undefined);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 dark:bg-gray-900 sm:px-6 lg:px-8">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle>Create an Account</CardTitle>
-                    <CardDescription>
-                        Get started with OrbitOS today.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form action={action} className="space-y-4">
-                        <div>
-                            <label
-                                htmlFor="name"
-                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                            >
-                                Name
-                            </label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                autoComplete="name"
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            />
-                            {state?.errors?.name && (
-                                <p className="text-sm text-red-500">{state.errors.name}</p>
-                            )}
+        <div className="flex min-h-screen bg-background items-center justify-center p-6 selection:bg-accent selection:text-white">
+            <div className="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border/50 bg-background shadow-2xl overflow-hidden rounded-sm">
+
+                {/* Visual Side */}
+                <div className="hidden lg:block relative bg-[#F5F2ED]">
+                    <img
+                        src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000"
+                        alt="Architectural Focus"
+                        className="object-cover w-full h-full grayscale-[0.3]"
+                    />
+                    <div className="absolute inset-0 bg-accent/5 mix-blend-multiply" />
+                    <div className="absolute top-12 left-12 right-12 text-white">
+                        <p className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4 opacity-70">Step 01 — Initiation</p>
+                        <h2 className="text-5xl font-serif leading-tight">Architecture of <br /> Digital Focus</h2>
+                    </div>
+                </div>
+
+                {/* Form Side */}
+                <div className="p-8 sm:p-16 flex flex-col justify-center">
+                    <div className="mb-12">
+                        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-accent/10 mb-6">
+                            <Orbit className="h-5 w-5 text-accent" />
+                        </div>
+                        <h1 className="text-4xl font-serif mb-3 italic tracking-tight">Access the OS</h1>
+                        <p className="text-muted-foreground leading-relaxed">
+                            Create your personalized environment for project management and financial clarity.
+                        </p>
+                    </div>
+
+                    <form action={action} className="space-y-8">
+                        <div className="space-y-6">
+                            {/* Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="name" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Identity</Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg"
+                                />
+                                {state?.errors?.name && (
+                                    <p className="text-xs text-destructive">{state.errors.name}</p>
+                                )}
+                            </div>
+
+                            {/* Email */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Email Address</Label>
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    required
+                                    placeholder="your@email.com"
+                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg"
+                                />
+                                {state?.errors?.email && (
+                                    <p className="text-xs text-destructive">{state.errors.email}</p>
+                                )}
+                            </div>
+
+                            {/* Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="password" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Secure Key</Label>
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    required
+                                    placeholder="••••••••"
+                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg font-mono placeholder:font-sans"
+                                />
+                                {state?.errors?.password && (
+                                    <div className="text-xs text-destructive space-y-1 mt-1">
+                                        <p className="font-semibold">Security Requirement:</p>
+                                        <ul className="list-disc pl-4 space-y-0.5 opacity-80">
+                                            {state.errors.password.map((error: string) => (
+                                                <li key={error}>{error}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                            >
-                                Email Address
-                            </label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            />
-                            {state?.errors?.email && (
-                                <p className="text-sm text-red-500">{state.errors.email}</p>
-                            )}
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="password"
-                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                            >
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="new-password"
-                                required
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            />
-                            {state?.errors?.password && (
-                                <div className="text-sm text-red-500">
-                                    <p>Password must:</p>
-                                    <ul className="list-disc pl-5">
-                                        {state.errors.password.map((error: string) => (
-                                            <li key={error}>{error}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
                         {state?.message && (
-                            <p className="text-sm text-red-500">{state.message}</p>
+                            <p className="text-sm text-destructive text-center p-3 bg-destructive/5 rounded-sm">{state.message}</p>
                         )}
 
-                        <SubmitButton />
+                        <div className="space-y-6">
+                            <SubmitButton />
+
+                            <p className="text-center text-[11px] tracking-widest uppercase font-bold opacity-40">
+                                Already a resident?{" "}
+                                <Link href="/login" className="text-accent underline-offset-4 hover:underline">
+                                    Sign In
+                                </Link>
+                            </p>
+                        </div>
                     </form>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                    <p className="text-sm text-muted-foreground">
-                        Already have an account?{" "}
-                        <Link href="/login" className="font-semibold text-primary hover:underline">
-                            Sign in
-                        </Link>
-                    </p>
-                </CardFooter>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }
