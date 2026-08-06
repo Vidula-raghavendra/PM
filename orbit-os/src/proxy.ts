@@ -24,7 +24,7 @@ export async function proxy(request: NextRequest) {
     if (accessToken) {
         try {
             const supabase = createSupabaseClient(accessToken);
-            const { data: { user: authUser }, error } = await supabase.auth.getUser();
+            const { data: { user: authUser }, error } = await supabase.auth.getUser(accessToken);
             if (!error && authUser) {
                 user = authUser;
             }

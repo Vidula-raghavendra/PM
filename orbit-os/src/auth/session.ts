@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabase } from "@/lib/supabaseClient";
 
 export async function createSession(accessToken: string, refreshToken: string) {
     const cookieStore = await cookies();
@@ -35,7 +35,7 @@ export async function getSession() {
 
     if (!accessToken) return null;
 
-    const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+    const { data: { user }, error } = await getSupabase().auth.getUser(accessToken);
 
     if (error || !user) {
         return null;
@@ -53,7 +53,7 @@ export async function updateSession() {
 
     if (!refreshToken) return;
 
-    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+    const { data, error } = await getSupabase().auth.refreshSession({ refresh_token: refreshToken });
 
     if (!error && data.session) {
         await createSession(data.session.access_token, data.session.refresh_token);

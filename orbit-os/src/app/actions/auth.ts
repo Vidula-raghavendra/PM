@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "@/auth/session";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabase } from "@/lib/supabaseClient";
 
 const signupSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters long." }).optional(),
@@ -34,8 +34,7 @@ export async function signup(prevState: any, formData: FormData) {
 
     const { email, password, name } = result.data;
 
-    // Step 1: Supabase Signup
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await getSupabase().auth.signUp({
         email,
         password,
         options: {
@@ -48,33 +47,24 @@ export async function signup(prevState: any, formData: FormData) {
     if (error) {
         console.error("Signup error:", error.message);
         return {
-            // Map some common errors for better UX if needed
             message: error.message || "Failed to create user.",
         };
     }
 
-    if (data.session) {
-        await createSession(data.session.access_token, data.session.refresh_token);
-
-        // Step 2: Auto-Create User Profile
-        // We use the admin client to ensure we can write to the profiles table regardless of public RLS
-        const { createAdminClient } = await import("@/lib/supabaseClient");
-        const adminSupabase = createAdminClient();
-
-        await adminSupabase.from("profiles").insert({
-            id: data.user?.id,
-            email: email,
-            full_name: name || "",
-            // Default values
-            sector: "",
-            purpose: "",
-        });
+    // With "Confirm email" enabled in Supabase, signUp succeeds but returns no
+    // session. Redirecting to /dashboard here would bounce straight back to
+    // /login with no explanation, so surface the real next step instead.
+    if (!data.session) {
+        return {
+            message: "Check your email to confirm your account, then sign in.",
+        };
     }
 
-    // We will handle Profile creation in Step 2 (next tool call or implicit here? User said Step 2 is AFTER Step 1)
-    // For now, satisfy Step 1.
+    // The profile row is created by the on_auth_user_created trigger
+    // (see supabase/migrations/0001_init.sql), so there is nothing to insert here.
+    await createSession(data.session.access_token, data.session.refresh_token);
 
-    redirect("/dashboard");
+    redirect("/onboarding");
 }
 
 export async function login(prevState: any, formData: FormData) {
@@ -89,7 +79,7 @@ export async function login(prevState: any, formData: FormData) {
     const { email, password } = result.data;
 
     // Step 1: Supabase Login
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await getSupabase().auth.signInWithPassword({
         email,
         password
     });
@@ -111,6 +101,6 @@ export async function login(prevState: any, formData: FormData) {
 export async function logout() {
     await deleteSession();
     // Also sign out from Supabase if we had a client-side session, but this is server action
-    await supabase.auth.signOut();
+    await getSupabase().auth.signOut();
     redirect("/login");
 }
