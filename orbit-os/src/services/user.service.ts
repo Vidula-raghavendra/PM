@@ -1,4 +1,3 @@
-// import { prisma } from "@/db/prisma"; // Removed
 import { createSupabaseClient, createAdminClient } from "@/lib/supabaseClient";
 import { getSession } from "@/auth/session";
 
@@ -56,23 +55,15 @@ export const UserService = {
 
     async updateProfile(userId: string, data: { phone?: string; gender?: string; sector?: string; purpose?: string }) {
         const session = await getSession();
-
-        // If no session, likely an error or admin call, but for now we assume user context
-        // If userId matches session user, we can include email to ensure upsert works
-
-
         const supabase = createSupabaseClient(session?.accessToken);
 
-        // Use upsert instead of update to handle missing rows
-        // We need to provide the full primary key (id) and potentially other required fields if it's an insert
-        // But for profiles, id is the PK.
+        // Upsert rather than update: the profile row may not exist yet if the
+        // signup-time insert failed.
         const payload = {
             id: userId,
             ...data,
-            // Email and updated_at removed to fix schema errors
             full_name: session?.user_metadata?.full_name || session?.email?.split('@')[0] || "User",
         };
-        console.log("!!! RESTARTING_PROFILE_UPDATE_LOG !!! Payload:", JSON.stringify(payload));
 
         const { error } = await supabase.from("profiles").upsert(payload);
 

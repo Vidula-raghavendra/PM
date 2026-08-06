@@ -66,7 +66,6 @@ export function ProjectFormV2() {
                 return updated;
             }
             return m;
-            return m;
         }));
     };
 

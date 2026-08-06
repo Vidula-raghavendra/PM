@@ -1,4 +1,3 @@
-// import { prisma } from "@/db/prisma"; // Removed
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import { getSession } from "@/auth/session";
 

@@ -3,9 +3,7 @@
 // ... imports
 import { z } from "zod";
 import { redirect } from "next/navigation";
-// import { saltAndHashPassword, verifyPassword } from "@/auth/password"; // Removed
 import { createSession, deleteSession } from "@/auth/session";
-// import { UserService } from "@/services/user.service"; // Removed for Auth Step 1
 import { supabase } from "@/lib/supabaseClient";
 
 const signupSchema = z.object({

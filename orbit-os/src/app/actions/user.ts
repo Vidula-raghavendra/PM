@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-// import { createSession } from "@/auth/session"; // Removed
 import { requireUser } from "@/auth/guard";
 import { UserService } from "@/services/user.service";
 
