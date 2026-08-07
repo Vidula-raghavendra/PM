@@ -9,7 +9,6 @@ import {
     FolderOpen,
     IndianRupee,
     Clock,
-    FileText,
     Users,
     Target,
     Settings,
@@ -20,11 +19,11 @@ import {
 const navigation = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
-    { name: "Financials", href: "/dashboard/finance", icon: IndianRupee },
-    { name: "Schedule", href: "/dashboard/calendar", icon: CalendarIcon },
-    { name: "Documents", href: "/dashboard/contracts", icon: FileText },
-    { name: "Collaborators", href: "/dashboard/people", icon: Users },
-    { name: "Ambitions", href: "/dashboard/goals", icon: Target },
+    { name: "Finance", href: "/dashboard/finance", icon: IndianRupee },
+    { name: "Time", href: "/dashboard/time", icon: Clock },
+    { name: "Calendar", href: "/dashboard/calendar", icon: CalendarIcon },
+    { name: "People", href: "/dashboard/people", icon: Users },
+    { name: "Goals", href: "/dashboard/goals", icon: Target },
 ];
 
 export function Sidebar() {

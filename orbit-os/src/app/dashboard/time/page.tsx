@@ -41,12 +41,12 @@ export default async function TimePage() {
                                     <CardContent className="p-4 flex items-center justify-between">
                                         <div>
                                             <p className="font-medium">{log.description || "No description"}</p>
-                                            <p className="text-sm text-muted-foreground">{log.project.title}</p>
+                                            <p className="text-sm text-muted-foreground">{log.project?.title ?? "Unknown project"}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-bold font-mono">{formatDuration(log.duration || 0)}</p>
+                                            <p className="font-bold font-mono">{formatDuration(log.duration)}</p>
                                             <p className="text-xs text-muted-foreground">
-                                                {new Date(log.startTime).toLocaleDateString()}
+                                                {log.startTime?.toLocaleDateString() ?? "—"}
                                             </p>
                                         </div>
                                     </CardContent>

@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { IndianRupee, Calendar, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Wallet, Calendar } from "lucide-react";
+import { cn, formatMoney } from "@/lib/utils";
 
 interface ProjectCardProps {
     id: string;
     title: string;
     client: string | null;
     status: string;
-    priority: string;
     totalBudget: number | null;
+    currency: string;
     endDate: Date | null;
     progress: number;
 }
@@ -39,14 +39,14 @@ export function ProjectCard({ project }: { project: ProjectCardProps }) {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="flex items-center gap-2">
-                            <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                            <span>{project.totalBudget?.toLocaleString("en-IN") || "0"}</span>
+                            <Wallet className="h-4 w-4 text-muted-foreground" />
+                            <span>{formatMoney(project.totalBudget ?? 0, project.currency)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span>
                                 {project.endDate
-                                    ? new Date(project.endDate).toLocaleDateString()
+                                    ? project.endDate.toLocaleDateString()
                                     : "No Deadline"}
                             </span>
                         </div>

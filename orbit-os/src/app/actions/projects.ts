@@ -2,77 +2,53 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { requireUser } from "@/auth/guard";
 import { ProjectService } from "@/services/project.service";
 
-const projectSchema = z.object({
+// Project creation goes through createDetailedProject in projects-v2.ts,
+// which is what the multi-step wizard submits to.
+
+const updateSchema = z.object({
     title: z.string().min(1, { message: "Title is required" }),
     description: z.string().optional(),
     client: z.string().optional(),
     status: z.enum(["ACTIVE", "COMPLETED", "ARCHIVED"]).default("ACTIVE"),
-    priority: z.enum(["HIGH", "MEDIUM", "LOW"]).default("MEDIUM"),
-    startDate: z.string().optional(), // ISO date string
-    endDate: z.string().optional(),   // ISO date string
-    totalBudget: z.coerce.number().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    totalBudget: z.coerce.number().min(0).optional(),
+    currency: z.string().optional(),
 });
-
-export async function createProject(prevState: any, formData: FormData) {
-    const userId = await requireUser();
-
-    const result = projectSchema.safeParse(Object.fromEntries(formData));
-
-    if (!result.success) {
-        return {
-            errors: result.error.flatten().fieldErrors,
-        };
-    }
-
-    const { title, description, client, status, priority, startDate, endDate, totalBudget } = result.data;
-
-    try {
-        await ProjectService.create({
-            title,
-            description,
-            client,
-            status,
-            priority,
-            startDate: startDate ? new Date(startDate) : undefined,
-            endDate: endDate ? new Date(endDate) : undefined,
-            totalBudget,
-            owner: { connect: { id: userId } }
-        });
-    } catch (error) {
-        console.error("Create Project Error:", error);
-        return { message: "Failed to create project." };
-    }
-
-    redirect("/dashboard/projects");
-}
 
 export async function updateProject(id: string, prevState: any, formData: FormData) {
     const userId = await requireUser();
 
-    const result = projectSchema.safeParse(Object.fromEntries(formData));
+    const result = updateSchema.safeParse(Object.fromEntries(formData));
 
     if (!result.success) {
-        return { errors: result.error.flatten().fieldErrors };
+        return { errors: z.flattenError(result.error).fieldErrors };
     }
-    const { title, description, status, priority, startDate, endDate, totalBudget } = result.data;
+
+    const { title, description, client, status, startDate, endDate, totalBudget, currency } = result.data;
 
     try {
         await ProjectService.update(id, userId, {
             title,
-            description,
+            description: description || null,
+            client: client || null,
             status,
-            priority,
-            startDate: startDate ? new Date(startDate) : undefined,
-            endDate: endDate ? new Date(endDate) : undefined,
-            totalBudget,
+            start_date: startDate || null,
+            end_date: endDate || null,
+            total_budget: totalBudget ?? 0,
+            ...(currency ? { currency } : {}),
         });
-    } catch (e) {
-        return { message: "Failed to update project" };
+    } catch (error: any) {
+        console.error("Update project failed:", error);
+        return { message: error?.message ?? "Failed to update project." };
     }
 
+    revalidatePath(`/dashboard/projects/${id}`);
+    revalidatePath("/dashboard/projects");
     redirect(`/dashboard/projects/${id}`);
 }
 
@@ -81,9 +57,11 @@ export async function deleteProject(id: string) {
 
     try {
         await ProjectService.delete(id, userId);
-    } catch (e) {
-        console.error("Delete Project Error:", e);
+    } catch (error) {
+        console.error("Delete project failed:", error);
+        // Fall through to the redirect; the project list will show it survived.
     }
 
+    revalidatePath("/dashboard/projects");
     redirect("/dashboard/projects");
 }

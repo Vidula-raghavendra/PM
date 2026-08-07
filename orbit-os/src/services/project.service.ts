@@ -1,9 +1,10 @@
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import { getSession } from "@/auth/session";
+import { mapProject, type Project } from "@/lib/mappers";
 
 export const ProjectService = {
-    async getProjectsForUser(userId: string) {
-        // RLS handles filtering. We just select *
+    async getProjectsForUser(userId: string): Promise<Project[]> {
+        // RLS restricts this to projects the user owns or collaborates on.
         const session = await getSession();
         const supabase = createSupabaseClient(session?.accessToken);
 
@@ -11,19 +12,19 @@ export const ProjectService = {
             .from("projects")
             .select(`
                 *,
-                tasks (status),
+                tasks (*),
                 collaborators (
                     *,
                     user:profiles (*)
                 )
             `)
-            .order("created_at", { ascending: false }); // Changed from updated_at to created_at per instruction or preference
+            .order("created_at", { ascending: false });
 
         if (error) {
             console.error("Error fetching projects:", error);
             return [];
         }
-        return data || [];
+        return (data ?? []).map(mapProject);
     },
 
     async getById(id: string, userId: string) {
@@ -49,16 +50,10 @@ export const ProjectService = {
             .eq("id", id)
             .single();
 
-        if (error) return null;
-        return data;
-    },
-
-    async create(data: any) {
-        const session = await getSession();
-        const supabase = createSupabaseClient(session?.accessToken);
-        const { data: project, error } = await supabase.from("projects").insert(data).select().single();
-        if (error) throw error;
-        return project;
+        // Access control is enforced by RLS, which allows both the owner and
+        // linked collaborators — deliberately not filtered on owner_id here.
+        if (error || !data) return null;
+        return mapProject(data);
     },
 
     async update(id: string, userId: string, data: any) {
@@ -80,28 +75,18 @@ export const ProjectService = {
         const session = await getSession();
         const supabase = createSupabaseClient(session?.accessToken);
 
-        // 1. Create Project
-        // We handle Type/Area by appending to description if no specific columns exist, 
-        // to be safe without schema migration access.
-        // Or better, we assume a metadata column exists or use description JSON.
-        // Let's serialize the extra fields into description for now to ensure they are saved.
-        const fullDescription = JSON.stringify({
-            scope: data.description,
-            type: data.type,
-            area: data.area,
-        });
-
         const { data: project, error: projectError } = await supabase
             .from("projects")
             .insert({
                 title: data.title,
-                client: data.client,
-                description: fullDescription, // Storing JSON in description for flexibility
+                client: data.client || null,
+                description: data.description || null,
+                type: data.type || null,
+                area: data.area || null,
                 status: "ACTIVE",
-                total_budget: data.totalBudget,
-                currency: data.currency,
+                total_budget: data.totalBudget ?? 0,
+                currency: data.currency || "INR",
                 owner_id: userId,
-                // If metadata column exists, we could use it: metadata: { type: data.type, area: data.area }
             })
             .select()
             .single();
@@ -110,54 +95,72 @@ export const ProjectService = {
 
         const projectId = project.id;
 
-        // 2. Create Milestones (Phases)
-        if (data.milestones && data.milestones.length > 0) {
-            const milestonesToInsert = data.milestones.map((m: any) => ({
-                project_id: projectId,
-                title: m.title,
-                amount: m.amount,
-                percentage: m.percentage,
-                start_date: m.startDate || null,
-                due_date: m.dueDate || null,
-                status: "PENDING",
-                description: JSON.stringify(m.checklist || []) // Store checklist in description
-            }));
-
+        // Milestones and collaborators are part of what the user submitted, so a
+        // failure here has to surface — previously these were logged and
+        // swallowed, leaving a project with no payment schedule and no error.
+        if (data.milestones?.length) {
             const { error: milestoneError } = await supabase
                 .from("milestones")
-                .insert(milestonesToInsert);
+                .insert(
+                    data.milestones.map((m: any) => ({
+                        project_id: projectId,
+                        title: m.title,
+                        amount: m.amount,
+                        percentage: m.percentage,
+                        start_date: m.startDate || null,
+                        due_date: m.dueDate || null,
+                        status: "PENDING",
+                        checklist: m.checklist ?? [],
+                    }))
+                );
 
-            if (milestoneError) console.error("Error creating milestones:", milestoneError);
+            if (milestoneError) throw milestoneError;
         }
 
-        // 3. Create Collaborators
-        if (data.collaborators && data.collaborators.length > 0) {
-            // We need to resolve emails to user_ids if possible, or just store email invitations
-            // Assuming a 'collaborators' table that takes { project_id, email, role, ... }
-            const collaboratorsToInsert = data.collaborators.map((c: any) => ({
-                project_id: projectId,
-                email: c.email,
-                role: c.role,
-                color: c.color,
-                split_percentage: c.splitPercentage,
-                // user_id: resolve(c.email) -> tricky without admin access. 
-                // We'll rely on a trigger or just store email for now.
-            }));
-
+        // user_id is left null: it is filled in by the link_pending_collaborators
+        // trigger when the invited person signs up with a matching email.
+        if (data.collaborators?.length) {
             const { error: collabError } = await supabase
                 .from("collaborators")
-                .insert(collaboratorsToInsert);
+                .insert(
+                    data.collaborators.map((c: any) => ({
+                        project_id: projectId,
+                        email: c.email,
+                        role: c.role,
+                        color: c.color,
+                        split_percentage: c.splitPercentage,
+                    }))
+                );
 
-            if (collabError) console.error("Error creating collaborators:", collabError);
+            if (collabError) throw collabError;
         }
 
-        // 4. Handle Contract File (Upload to Storage)
-        if (data.contractFile) {
+        // The contract is uploaded to storage AND recorded in `documents`.
+        // Without the row the file exists in the bucket but is invisible to
+        // the app, which is what happened previously.
+        if (data.contractFile && data.contractFile.size > 0) {
+            const storagePath = `${projectId}/${data.contractFile.name}`;
+
             const { error: uploadError } = await supabase.storage
                 .from("contracts")
-                .upload(`${projectId}/${data.contractFile.name}`, data.contractFile);
+                .upload(storagePath, data.contractFile, { upsert: true });
 
-            if (uploadError) console.error("Error uploading contract:", uploadError);
+            // A failed contract upload should not discard an otherwise valid
+            // project, so this one is logged rather than thrown.
+            if (uploadError) {
+                console.error("Contract upload failed:", uploadError);
+            } else {
+                const { error: documentError } = await supabase
+                    .from("documents")
+                    .insert({
+                        project_id: projectId,
+                        title: data.contractFile.name,
+                        storage_path: storagePath,
+                        type: "CONTRACT",
+                    });
+
+                if (documentError) console.error("Document record failed:", documentError);
+            }
         }
 
         return project;

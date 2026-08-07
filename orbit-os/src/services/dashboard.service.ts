@@ -1,5 +1,6 @@
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import { getSession } from "@/auth/session";
+import { mapTimeLog, mapTask } from "@/lib/mappers";
 
 export const DashboardService = {
     async getStats(userId: string) {
@@ -66,7 +67,7 @@ export const DashboardService = {
             .eq("user_id", userId)
             .order("start_time", { ascending: false })
             .limit(50);
-        return data || [];
+        return (data ?? []).map(mapTimeLog);
     },
 
     async getNextTask(userId: string) {

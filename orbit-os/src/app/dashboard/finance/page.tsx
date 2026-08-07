@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IndianRupee, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatMoney } from "@/lib/utils";
 
 import { requireUser } from "@/auth/guard";
 import { FinanceService } from "@/services/finance.service";
@@ -39,7 +40,7 @@ export default async function FinancePage() {
                         <IndianRupee className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₹{data.totalRevenue.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{formatMoney(data.totalRevenue)}</div>
                         <p className="text-xs text-muted-foreground flex items-center pt-1">
                             <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" /> Paid Milestones
                         </p>
@@ -51,7 +52,7 @@ export default async function FinancePage() {
                         <IndianRupee className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₹{data.pendingRevenue.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{formatMoney(data.pendingRevenue)}</div>
                         <p className="text-xs text-muted-foreground flex items-center pt-1">
                             <ArrowDownRight className="h-3 w-3 text-orange-500 mr-1" /> Outstanding
                         </p>
@@ -71,10 +72,10 @@ export default async function FinancePage() {
                                     <div key={milestone.id} className="flex items-center justify-between border-b last:border-0 pb-4 last:pb-0">
                                         <div>
                                             <p className="font-medium">{milestone.title}</p>
-                                            <p className="text-sm text-muted-foreground">{milestone.project.title}</p>
+                                            <p className="text-sm text-muted-foreground">{milestone.project?.title ?? "—"}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-medium">₹{milestone.amount.toLocaleString()}</p>
+                                            <p className="font-medium">{formatMoney(milestone.amount)}</p>
                                             <Badge variant={milestone.status === 'PAID' ? 'secondary' : 'outline'} className="mt-1">
                                                 {milestone.status}
                                             </Badge>

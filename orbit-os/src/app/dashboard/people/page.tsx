@@ -10,29 +10,44 @@ export default async function PeoplePage() {
     // Fetch projects where I am owner or collaborator
     const projects = await ProjectService.getProjectsForUser(userId);
 
-    // Group collaborators by user ID
-    // @ts-ignore
-    const peopleMap = new Map<string, { user: any, projects: { id: string, title: string, role: string }[] }>();
+    // Group collaborators across projects. Invited-but-not-yet-registered
+    // people have no linked profile, so key on email, which is always present.
+    type Person = {
+        email: string;
+        name: string | null;
+        phone: string | null;
+        sector: string | null;
+        purpose: string | null;
+        pending: boolean;
+        projects: { id: string; title: string; role: string }[];
+    };
 
-    projects.forEach(project => {
-        project.collaborators.forEach((collaborator: any) => {
-            // Skip myself
+    const peopleMap = new Map<string, Person>();
+
+    projects.forEach((project) => {
+        project.collaborators.forEach((collaborator) => {
             if (collaborator.userId === userId) return;
 
-            if (!peopleMap.has(collaborator.userId)) {
-                peopleMap.set(collaborator.userId, {
-                    user: collaborator.user,
-                    projects: []
+            const key = collaborator.email.toLowerCase();
+
+            if (!peopleMap.has(key)) {
+                peopleMap.set(key, {
+                    email: collaborator.email,
+                    name: collaborator.user?.fullName ?? null,
+                    phone: collaborator.user?.phone ?? null,
+                    sector: collaborator.user?.sector ?? null,
+                    purpose: collaborator.user?.purpose ?? null,
+                    pending: !collaborator.userId,
+                    projects: [],
                 });
             }
 
-            const personEntry = peopleMap.get(collaborator.userId);
-            // Avoid duplicate projects for the same person (though unlikely in this query structure unless multiple roles)
-            if (!personEntry?.projects.find(p => p.id === project.id)) {
-                personEntry?.projects.push({
+            const entry = peopleMap.get(key)!;
+            if (!entry.projects.some((p) => p.id === project.id)) {
+                entry.projects.push({
                     id: project.id,
                     title: project.title,
-                    role: collaborator.role
+                    role: collaborator.role,
                 });
             }
         });
@@ -50,22 +65,27 @@ export default async function PeoplePage() {
                 </div>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {people.map(({ user, projects }) => (
-                        <Card key={user.id}>
+                    {people.map((person) => (
+                        <Card key={person.email}>
                             <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
                                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
-                                    {user.name?.[0] || user.email[0].toUpperCase()}
+                                    {(person.name ?? person.email)[0]?.toUpperCase()}
                                 </div>
                                 <div className="flex flex-col">
-                                    <CardTitle className="text-base">{user.name || "Unknown"}</CardTitle>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        {person.name || person.email}
+                                        {person.pending && (
+                                            <Badge variant="outline" className="font-normal">Invited</Badge>
+                                        )}
+                                    </CardTitle>
                                     <div className="text-xs text-muted-foreground flex items-center gap-1">
                                         <Mail className="h-3 w-3" />
-                                        {user.email}
+                                        {person.email}
                                     </div>
-                                    {user.phone && (
+                                    {person.phone && (
                                         <div className="text-xs text-muted-foreground flex items-center gap-1">
                                             <Phone className="h-3 w-3" />
-                                            {user.phone}
+                                            {person.phone}
                                         </div>
                                     )}
                                 </div>
@@ -77,17 +97,17 @@ export default async function PeoplePage() {
                                         Shared Projects
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        {projects.map(p => (
+                                        {person.projects.map(p => (
                                             <Badge key={p.id} variant="secondary">
                                                 {p.title} ({p.role})
                                             </Badge>
                                         ))}
                                     </div>
                                 </div>
-                                {(user.sector || user.purpose) && (
+                                {(person.sector || person.purpose) && (
                                     <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
-                                        {user.sector && <span className="block">Sector: {user.sector}</span>}
-                                        {user.purpose && <span className="block">Purpose: {user.purpose}</span>}
+                                        {person.sector && <span className="block">Sector: {person.sector}</span>}
+                                        {person.purpose && <span className="block">Purpose: {person.purpose}</span>}
                                     </div>
                                 )}
                             </CardContent>

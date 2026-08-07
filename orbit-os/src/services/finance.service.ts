@@ -1,5 +1,6 @@
 import { createSupabaseClient } from "@/lib/supabaseClient";
 import { getSession } from "@/auth/session";
+import { mapMilestone } from "@/lib/mappers";
 
 export const FinanceService = {
     async getMilestones(userId: string) {
@@ -24,7 +25,11 @@ export const FinanceService = {
             console.error("Error fetching milestones:", error);
             return [];
         }
-        return data || [];
+
+        return (data ?? []).map((row: any) => ({
+            ...mapMilestone(row),
+            project: row.project ? { title: row.project.title } : null,
+        }));
     },
 
     async createMilestone(data: any) {

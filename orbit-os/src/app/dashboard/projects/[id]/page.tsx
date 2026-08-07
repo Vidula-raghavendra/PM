@@ -24,9 +24,12 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
     }
 
     // Finance Calculations
-    const totalMilestoneAmount = project.milestones.reduce((sum: number, m: any) => sum + m.amount, 0);
-    const paidAmount = project.milestones.filter((m: any) => m.status === 'PAID').reduce((sum: number, m: any) => sum + m.amount, 0);
-    const pendingAmount = project.milestones.filter((m: any) => m.status === 'PENDING').reduce((sum: number, m: any) => sum + m.amount, 0);
+    const paidAmount = project.milestones
+        .filter((m) => m.status === 'PAID')
+        .reduce((sum, m) => sum + m.amount, 0);
+    const pendingAmount = project.milestones
+        .filter((m) => m.status === 'PENDING')
+        .reduce((sum, m) => sum + m.amount, 0);
 
     return (
         <div className="space-y-6">
@@ -80,7 +83,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">
-                                    {Math.round(project.timeLogs.reduce((acc: number, log: any) => acc + (log.duration || 0), 0) / 60)}h
+                                    {Math.round(project.timeLogs.reduce((acc, log) => acc + log.duration, 0) / 60)}h
                                 </div>
                             </CardContent>
                         </Card>
@@ -90,7 +93,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">
-                                    {project.tasks.filter((t: any) => t.status !== 'DONE').length}
+                                    {project.tasks.filter((t) => t.status !== 'DONE').length}
                                 </div>
                             </CardContent>
                         </Card>
@@ -117,7 +120,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <CardDescription>Milestone status and amounts</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {project.milestones.map((m: any) => (
+                                {project.milestones.map((m) => (
                                     <div key={m.id} className="flex items-center justify-between border-b last:border-0 pb-2 last:pb-0">
                                         <div>
                                             <div className="font-medium">{m.title}</div>
@@ -162,14 +165,14 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <CardTitle>Collaborators</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {project.collaborators.map((c: any) => (
+                                {project.collaborators.map((c) => (
                                     <div key={c.id} className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: c.color }}>
-                                                {c.user.name?.[0] || c.user.email[0].toUpperCase()}
+                                                {(c.user?.fullName ?? c.email)[0]?.toUpperCase()}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-medium">{c.user.name || c.user.email}</div>
+                                                <div className="text-sm font-medium">{c.user?.fullName || c.email}</div>
                                                 <div className="text-xs text-muted-foreground">{c.role}</div>
                                             </div>
                                         </div>
@@ -187,17 +190,16 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <CardTitle>Documents</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2">
-                                {project.documents.map((d: any) => (
+                                {project.documents.map((d) => (
                                     <div key={d.id} className="flex items-center justify-between p-2 border rounded hover:bg-slate-50">
                                         <div className="flex items-center gap-2">
                                             <FileText className="h-4 w-4 text-primary" />
                                             <span className="text-sm font-medium">{d.title}</span>
                                         </div>
-                                        {/* In real app, download link would be d.url */}
                                         <Button variant="ghost" size="icon" asChild>
-                                            <Link href={d.url || "#"} target="_blank">
+                                            <a href={`/api/documents/${d.id}`} target="_blank" rel="noreferrer">
                                                 <Download className="h-4 w-4" />
-                                            </Link>
+                                            </a>
                                         </Button>
                                     </div>
                                 ))}

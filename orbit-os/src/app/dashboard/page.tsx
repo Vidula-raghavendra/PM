@@ -3,6 +3,7 @@ import { DashboardService } from "@/services/dashboard.service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { IndianRupee, Briefcase, Clock, Activity } from "lucide-react";
 import Link from "next/link";
+import { formatMoney } from "@/lib/utils";
 import { DailyLogWidget } from "@/components/dashboard/daily-log";
 import { NextTaskWidget } from "@/components/dashboard/next-task";
 
@@ -45,7 +46,7 @@ export default async function DashboardPage() {
                         <IndianRupee className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-4xl font-serif tracking-tight">₹{data.totalRevenue.toLocaleString()}</div>
+                        <div className="text-4xl font-serif tracking-tight">{formatMoney(data.totalRevenue)}</div>
                         <p className="text-[10px] tracking-widest uppercase font-bold text-muted-foreground mt-2 opacity-50">Lifetime Accumulation</p>
                     </CardContent>
                 </Card>
