@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Orbit OS
 
-## Getting Started
+A project and billing tracker for people who get paid in milestones — architects,
+designers, studios, consultants, and freelancers.
 
-First, run the development server:
+Most project tools treat money as an afterthought, and most invoicing tools treat
+the work as an afterthought. Orbit OS makes the **milestone** the atomic unit: it
+is simultaneously a deliverable to complete and an amount to invoice. Revenue,
+progress, and payment status all derive from the same record.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, Server Actions) |
+| Language | TypeScript |
+| Database | Supabase (Postgres + Row Level Security) |
+| Auth | Supabase Auth, httpOnly cookie sessions |
+| Storage | Supabase Storage (private bucket, signed URLs) |
+| Styling | Tailwind CSS, Radix UI primitives |
+| Validation | Zod |
+| Hosting | Vercel |
+
+## Data model
+
+```
+profiles  ──┬── projects ──┬── milestones   (amount, %, due date, PAID/PENDING)
+            │              ├── tasks
+            │              ├── time_logs
+            │              ├── documents    (contracts, in private storage)
+            │              └── collaborators (role, colour, revenue split %)
+            ├── goals
+            └── calendar_events
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A project is readable by its owner and its collaborators, and mutable only by
+its owner. This is enforced in the database by RLS rather than in application
+code, so a missing check in a query cannot leak another user's data.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+cp .env.example .env.local   # fill in your Supabase keys
+npm run dev
+```
 
-## Learn More
+### Database
 
-To learn more about Next.js, take a look at the following resources:
+Apply the migrations in order to a fresh Supabase project, either through the
+SQL editor or the Supabase CLI:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+supabase db push
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Migration | Contents |
+|---|---|
+| `0001_init.sql` | Tables, indexes, `updated_at` triggers, and the `handle_new_user` trigger that creates a profile on signup |
+| `0002_rls.sql` | Row level security policies for every table |
+| `0003_storage.sql` | Private `contracts` bucket and its access policies |
 
-## Deploy on Vercel
+Then turn **off** email confirmation under Authentication → Providers → Email,
+or signup will complete without returning a session.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Environment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anonymous key, subject to RLS |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only. Bypasses RLS — never expose to the browser |
+| `CRON_SECRET` | Authorises the keepalive cron |
+
+## Notes on a few decisions
+
+**`src/lib/mappers.ts`** — Postgres returns `snake_case` columns and ISO date
+strings; the UI works in `camelCase` with `Date` objects. Mapping happens in one
+place so pages never touch raw rows.
+
+**`can_access_project()` is `SECURITY DEFINER`** — the projects policy needs to
+read `collaborators` and the collaborators policy needs to read `projects`, which
+recurses. Moving the check into a definer function breaks the cycle.
+
+**Collaborators are invited by email** — `collaborators.user_id` stays null until
+that person signs up, at which point the `link_pending_collaborators` trigger
+attaches the invitation to their new profile.
+
+**`/api/keepalive`** — Supabase pauses free-tier projects after 7 idle days and
+recovery requires a manual restore, so a Vercel cron runs a real query twice a
+week. Pinging a cached page would not count as activity.
+
+## Status
+
+Working: authentication and onboarding, project creation (multi-step wizard with
+milestones, collaborators, and contract upload), project detail, finance
+overview, time logs, calendar, goals, people.
+
+In progress: marking milestones as paid from the UI, task creation, and project
+editing. See the repository issues for the current list.
