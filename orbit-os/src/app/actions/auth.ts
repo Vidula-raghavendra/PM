@@ -51,12 +51,11 @@ export async function signup(prevState: any, formData: FormData) {
         };
     }
 
-    // With "Confirm email" enabled in Supabase, signUp succeeds but returns no
-    // session. Redirecting to /dashboard here would bounce straight back to
-    // /login with no explanation, so surface the real next step instead.
+    // If Supabase has "Confirm email" enabled and no session is returned yet,
+    // tell the user to check their inbox.
     if (!data.session) {
         return {
-            message: "Check your email to confirm your account, then sign in.",
+            info: "Check your email to confirm your account, then sign in.",
         };
     }
 
