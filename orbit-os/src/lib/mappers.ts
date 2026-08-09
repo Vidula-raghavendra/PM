@@ -90,6 +90,7 @@ export type Collaborator = {
     role: string;
     color: string;
     splitPercentage: number;
+    status: "PENDING" | "ACCEPTED" | "DECLINED";
     /** Null until the invited person signs up. */
     user: Person | null;
 };
@@ -103,6 +104,7 @@ export function mapCollaborator(row: any): Collaborator {
         role: row.role ?? "MEMBER",
         color: row.color ?? "#3b82f6",
         splitPercentage: toNumber(row.split_percentage),
+        status: row.status ?? "PENDING",
         user: mapProfile(row.user),
     };
 }
@@ -190,5 +192,85 @@ export function mapProject(row: any): Project {
         collaborators: (row.collaborators ?? []).map(mapCollaborator),
         documents: (row.documents ?? []).map(mapDocument),
         timeLogs: (row.time_logs ?? []).map(mapTimeLog),
+    };
+}
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export type Notification = {
+    id: string;
+    userId: string;
+    type: "INVITATION" | "MEETING" | "GENERAL";
+    title: string;
+    body: string | null;
+    link: string | null;
+    isRead: boolean;
+    metadata: Record<string, any>;
+    createdAt: Date | null;
+};
+
+export function mapNotification(row: any): Notification {
+    return {
+        id: row.id,
+        userId: row.user_id,
+        type: row.type ?? "GENERAL",
+        title: row.title,
+        body: row.body ?? null,
+        link: row.link ?? null,
+        isRead: row.is_read ?? false,
+        metadata: row.metadata ?? {},
+        createdAt: toDate(row.created_at),
+    };
+}
+
+// ---------------------------------------------------------------------------
+// Meetings (calendar_events with attendees)
+// ---------------------------------------------------------------------------
+
+export type MeetingAttendee = {
+    id: string;
+    eventId: string;
+    userId: string | null;
+    email: string;
+    status: "INVITED" | "ACCEPTED" | "DECLINED";
+};
+
+export function mapMeetingAttendee(row: any): MeetingAttendee {
+    return {
+        id: row.id,
+        eventId: row.event_id,
+        userId: row.user_id ?? null,
+        email: row.email ?? "",
+        status: row.status ?? "INVITED",
+    };
+}
+
+export type Meeting = {
+    id: string;
+    projectId: string | null;
+    userId: string;
+    title: string;
+    description: string | null;
+    startTime: Date | null;
+    endTime: Date | null;
+    meetingLink: string | null;
+    type: string;
+    attendees: MeetingAttendee[];
+};
+
+export function mapMeeting(row: any): Meeting {
+    return {
+        id: row.id,
+        projectId: row.project_id ?? null,
+        userId: row.user_id,
+        title: row.title,
+        description: row.description ?? null,
+        startTime: toDate(row.start_time),
+        endTime: toDate(row.end_time),
+        meetingLink: row.meeting_link ?? null,
+        type: row.type ?? "MEETING",
+        attendees: (row.meeting_attendees ?? []).map(mapMeetingAttendee),
     };
 }

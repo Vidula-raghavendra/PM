@@ -14,7 +14,7 @@ export default function NewProjectPage() {
                 </Button>
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">New Project</h1>
-                    <p className="text-muted-foreground">Detailed setup for high-value projects.</p>
+                    <p className="text-muted-foreground">Set up a new project with milestones, team, and budget.</p>
                 </div>
             </div>
 

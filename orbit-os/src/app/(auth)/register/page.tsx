@@ -15,7 +15,7 @@ function SubmitButton() {
 
     return (
         <Button type="submit" className="w-full h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-[13px] tracking-widest uppercase font-bold" disabled={pending}>
-            {pending ? "Creating Space..." : "Begin Your Journey"}
+            {pending ? "Creating account..." : "Create Account"}
         </Button>
     );
 }
@@ -31,13 +31,13 @@ export default function RegisterPage() {
                 <div className="hidden lg:block relative bg-[#F5F2ED]">
                     <img
                         src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000"
-                        alt="Architectural Focus"
+                        alt="Professional workspace"
                         className="object-cover w-full h-full grayscale-[0.3]"
                     />
                     <div className="absolute inset-0 bg-accent/5 mix-blend-multiply" />
                     <div className="absolute top-12 left-12 right-12 text-white">
-                        <p className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4 opacity-70">Step 01 — Initiation</p>
-                        <h2 className="text-5xl font-serif leading-tight">Architecture of <br /> Digital Focus</h2>
+                        <p className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4 opacity-70">Step 1 — Create Account</p>
+                        <h2 className="text-5xl font-serif leading-tight">Your Professional <br /> Workspace</h2>
                     </div>
                 </div>
 
@@ -47,7 +47,7 @@ export default function RegisterPage() {
                         <div className="h-10 w-10 flex items-center justify-center rounded-full bg-accent/10 mb-6">
                             <Orbit className="h-5 w-5 text-accent" />
                         </div>
-                        <h1 className="text-4xl font-serif mb-3 italic tracking-tight">Access the OS</h1>
+                        <h1 className="text-4xl font-serif mb-3 italic tracking-tight">Create Your Account</h1>
                         <p className="text-muted-foreground leading-relaxed">
                             Create your personalized environment for project management and financial clarity.
                         </p>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                             <SubmitButton />
 
                             <p className="text-center text-[11px] tracking-widest uppercase font-bold opacity-40">
-                                Already a resident?{" "}
+                                Already have an account?{" "}
                                 <Link href="/login" className="text-accent underline-offset-4 hover:underline">
                                     Sign In
                                 </Link>

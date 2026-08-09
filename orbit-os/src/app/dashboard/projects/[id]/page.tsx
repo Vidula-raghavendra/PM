@@ -2,26 +2,33 @@
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronLeft, Edit, Trash, FileText, Download } from "lucide-react";
+import { ChevronLeft, Trash, FileText, Download, ExternalLink, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { deleteProject } from "@/app/actions/projects";
+import { removeCollaboratorFromProject } from "@/app/actions/collaborators";
 import { requireUser } from "@/auth/guard";
 import { ProjectService } from "@/services/project.service";
+import { CalendarService } from "@/services/calendar.service";
+import { AddCollaboratorDialog } from "@/components/projects/add-collaborator-dialog";
+import { ScheduleMeetingDialog } from "@/components/projects/schedule-meeting-dialog";
 
 async function getProject(id: string) {
     const userId = await requireUser();
-    return await ProjectService.getById(id, userId);
+    return { project: await ProjectService.getById(id, userId), userId };
 }
 
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const project = await getProject(id);
+    const { project, userId } = await getProject(id);
 
     if (!project) {
         notFound();
     }
+
+    const isOwner = project.ownerId === userId;
+    const meetings = await CalendarService.getMeetingsForProject(id);
 
     // Finance Calculations
     const paidAmount = project.milestones
@@ -50,12 +57,14 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    {/* @ts-ignore */}
-                    <form action={deleteProject.bind(null, project.id)}>
-                        <Button variant="destructive" size="sm" type="submit">
-                            <Trash className="h-4 w-4 mr-2" /> Delete
-                        </Button>
-                    </form>
+                    {isOwner && (
+                        /* @ts-ignore */
+                        <form action={deleteProject.bind(null, project.id)}>
+                            <Button variant="destructive" size="sm" type="submit">
+                                <Trash className="h-4 w-4 mr-2" /> Delete
+                            </Button>
+                        </form>
+                    )}
                 </div>
             </div>
 
@@ -64,6 +73,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="finance">Finance</TabsTrigger>
                     <TabsTrigger value="team">Team & Docs</TabsTrigger>
+                    <TabsTrigger value="meetings">Meetings</TabsTrigger>
                 </TabsList>
 
                 {/* OVERVIEW TAB */}
@@ -79,7 +89,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium">Log Hours</CardTitle>
+                                <CardTitle className="text-sm font-medium">Hours Logged</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">
@@ -157,31 +167,49 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     </div>
                 </TabsContent>
 
-                {/* TEAM Tab */}
+                {/* TEAM TAB */}
                 <TabsContent value="team" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         <Card>
-                            <CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle>Collaborators</CardTitle>
+                                {isOwner && <AddCollaboratorDialog projectId={project.id} />}
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {project.collaborators.map((c) => (
                                     <div key={c.id} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: c.color }}>
                                                 {(c.user?.fullName ?? c.email)[0]?.toUpperCase()}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-medium">{c.user?.fullName || c.email}</div>
-                                                <div className="text-xs text-muted-foreground">{c.role}</div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-medium">{c.user?.fullName || c.email}</span>
+                                                    <Badge
+                                                        variant={c.status === "ACCEPTED" ? "default" : c.status === "DECLINED" ? "destructive" : "secondary"}
+                                                        className="text-[10px] px-1.5 py-0"
+                                                    >
+                                                        {c.status === "ACCEPTED" ? "Active" : c.status === "DECLINED" ? "Declined" : "Pending"}
+                                                    </Badge>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">{c.role} · {c.splitPercentage}% split</div>
                                             </div>
                                         </div>
-                                        <div className="text-sm font-bold">
-                                            {c.splitPercentage}% Split
+                                        <div className="flex items-center gap-2">
+                                            {isOwner && (
+                                                /* @ts-ignore */
+                                                <form action={removeCollaboratorFromProject.bind(null, c.id, project.id)}>
+                                                    <Button variant="ghost" size="icon" type="submit" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                                                        <Trash className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </form>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
-                                {project.collaborators.length === 0 && <p className="text-sm text-muted-foreground">No collaborators added.</p>}
+                                {project.collaborators.length === 0 && (
+                                    <p className="text-sm text-muted-foreground">No collaborators yet. Click "Invite" to add someone.</p>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -206,6 +234,67 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 {project.documents.length === 0 && <p className="text-sm text-muted-foreground">No documents uploaded.</p>}
                             </CardContent>
                         </Card>
+                    </div>
+                </TabsContent>
+
+                {/* MEETINGS TAB */}
+                <TabsContent value="meetings" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">Scheduled Meetings</h3>
+                        <ScheduleMeetingDialog projectId={project.id} collaborators={project.collaborators} />
+                    </div>
+
+                    {meetings.length === 0 && (
+                        <Card>
+                            <CardContent className="py-12 text-center">
+                                <Video className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+                                <p className="text-sm text-muted-foreground">No meetings scheduled yet.</p>
+                                <p className="text-xs text-muted-foreground mt-1">Schedule a meeting to notify your team.</p>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    <div className="space-y-3">
+                        {meetings.map((m) => (
+                            <Card key={m.id}>
+                                <CardContent className="py-4">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <h4 className="font-semibold">{m.title}</h4>
+                                            {m.description && <p className="text-sm text-muted-foreground mt-0.5">{m.description}</p>}
+                                            <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                                <span>
+                                                    {m.startTime?.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                                                </span>
+                                                <span>
+                                                    {m.startTime?.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                                                    {" – "}
+                                                    {m.endTime?.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                                                </span>
+                                                <span>{m.attendees.length} attendee{m.attendees.length !== 1 ? "s" : ""}</span>
+                                            </div>
+                                        </div>
+                                        {m.meetingLink && (
+                                            <Button variant="outline" size="sm" asChild>
+                                                <a href={m.meetingLink} target="_blank" rel="noreferrer">
+                                                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Join
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {/* Attendee pills */}
+                                    {m.attendees.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5 mt-3">
+                                            {m.attendees.map((a) => (
+                                                <span key={a.id} className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                                                    {a.email}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
                     </div>
                 </TabsContent>
             </Tabs>

@@ -47,9 +47,9 @@ export default function LoginPage() {
                         <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/5 mb-6">
                             <Orbit className="h-5 w-5 text-primary opacity-50" />
                         </div>
-                        <h1 className="text-4xl font-serif mb-3 italic tracking-tight">System Login</h1>
+                        <h1 className="text-4xl font-serif mb-3 italic tracking-tight">Sign In</h1>
                         <p className="text-muted-foreground leading-relaxed">
-                            Resuming your sessions for intentional productivity and clarity.
+                            Sign in to continue where you left off.
                         </p>
                     </div>
 
@@ -96,9 +96,9 @@ export default function LoginPage() {
                             <SubmitButton />
 
                             <p className="text-center text-[11px] tracking-widest uppercase font-bold opacity-40">
-                                New to the system?{" "}
+                                Don't have an account?{" "}
                                 <Link href="/register" className="text-accent underline-offset-4 hover:underline">
-                                    Join Space
+                                    Sign Up
                                 </Link>
                             </p>
                         </div>

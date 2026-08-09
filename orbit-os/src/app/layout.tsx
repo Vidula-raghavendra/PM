@@ -16,7 +16,7 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: "OrbitOS",
-  description: "Personal Business Operating System for Creators",
+  description: "Project Management for Professionals",
 };
 
 export default function RootLayout({

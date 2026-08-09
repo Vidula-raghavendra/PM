@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "@/auth/session";
-import { getSupabase } from "@/lib/supabaseClient";
+import { getSupabase, createAdminClient } from "@/lib/supabaseClient";
 
 const signupSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters long." }).optional(),
@@ -34,35 +34,36 @@ export async function signup(prevState: any, formData: FormData) {
 
     const { email, password, name } = result.data;
 
-    const { data, error } = await getSupabase().auth.signUp({
+    // Use the admin API to create the user as auto-confirmed (skips email verification).
+    const admin = createAdminClient();
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
         email,
         password,
-        options: {
-            data: {
-                full_name: name,
-            }
-        }
+        email_confirm: true,
+        user_metadata: { full_name: name },
     });
 
-    if (error) {
-        console.error("Signup error:", error.message);
-        return {
-            message: error.message || "Failed to create user.",
-        };
+    if (createError) {
+        console.error("Signup error:", createError.message);
+        // Supabase says "already been registered" for duplicates
+        if (createError.message.includes("already been registered")) {
+            return { message: "An account with this email already exists. Please sign in." };
+        }
+        return { message: createError.message || "Failed to create user." };
     }
 
-    // If Supabase has "Confirm email" enabled and no session is returned yet,
-    // tell the user to check their inbox.
-    if (!data.session) {
-        return {
-            info: "Check your email to confirm your account, then sign in.",
-        };
+    // Now sign them in to get a session
+    const { data, error: loginError } = await getSupabase().auth.signInWithPassword({
+        email,
+        password,
+    });
+
+    if (loginError || !data.session) {
+        console.error("Auto-login after signup failed:", loginError?.message);
+        return { message: "Account created but auto-login failed. Please sign in manually." };
     }
 
-    // The profile row is created by the on_auth_user_created trigger
-    // (see supabase/migrations/0001_init.sql), so there is nothing to insert here.
     await createSession(data.session.access_token, data.session.refresh_token);
-
     redirect("/onboarding");
 }
 
