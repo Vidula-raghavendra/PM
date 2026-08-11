@@ -48,26 +48,26 @@ function FeatureCard({ title, desc, index }: { title: string; desc: string; inde
         <ScrollReveal delay={index * 70}>
             <div
                 ref={cardRef}
-                className="relative group p-6 rounded-2xl transition-all duration-300 hover:bg-card hover:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] cursor-default border border-transparent hover:border-border/50"
+                className="relative group p-6 rounded-lg border border-transparent transition-all duration-[160ms] ease-out hover:border-border hover:shadow-sm hover:-translate-y-px cursor-default bg-card"
                 onMouseMove={handleMouseMove}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                {/* Mouse-following gradient */}
+                {/* Mouse-following warm glow */}
                 <div
-                    className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    className="pointer-events-none absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-[240ms]"
                     style={{
                         background: isHovered
-                            ? `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, hsl(258 65% 58% / 0.04), transparent 70%)`
+                            ? `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, hsl(31 74% 53% / 0.06), transparent 70%)`
                             : "none",
                     }}
                 />
 
                 <div className="relative">
-                    <h3 className="text-[15px] font-semibold tracking-tight mb-1.5 group-hover:text-accent transition-colors duration-300">
+                    <h3 className="text-[15px] font-semibold tracking-tight mb-1.5 group-hover:text-accent transition-colors duration-[100ms]">
                         {title}
                     </h3>
-                    <p className="text-[14px] text-muted-foreground leading-relaxed">
+                    <p className="text-[13px] text-muted-foreground leading-relaxed">
                         {desc}
                     </p>
                 </div>
@@ -78,7 +78,7 @@ function FeatureCard({ title, desc, index }: { title: string; desc: string; inde
 
 export function FeatureGrid() {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {features.map((f, i) => (
                 <FeatureCard key={f.title} title={f.title} desc={f.desc} index={i} />
             ))}

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
     FolderOpen,
-    IndianRupee,
+    Wallet,
     Clock,
     Users,
     Target,
@@ -18,7 +18,7 @@ import {
 const navigation = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
-    { name: "Finance", href: "/dashboard/finance", icon: IndianRupee },
+    { name: "Finance", href: "/dashboard/finance", icon: Wallet },
     { name: "Time", href: "/dashboard/time", icon: Clock },
     { name: "Calendar", href: "/dashboard/calendar", icon: CalendarIcon },
     { name: "People", href: "/dashboard/people", icon: Users },
@@ -29,10 +29,10 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="flex h-full w-60 flex-col border-r border-border/40 bg-card text-foreground">
-            {/* Brand */}
-            <div className="flex h-14 items-center px-6 border-b border-border/20">
-                <Link href="/dashboard" className="text-[15px] font-semibold tracking-tight hover:opacity-80 transition-opacity">
+        <div className="flex h-full w-60 flex-col border-r border-border bg-card text-foreground">
+            {/* Brand — Fraunces 18px per design system */}
+            <div className="flex h-14 items-center px-6 border-b border-border">
+                <Link href="/dashboard" className="font-serif text-lg tracking-tight hover:opacity-80 transition-opacity">
                     Orbit
                 </Link>
             </div>
@@ -47,10 +47,10 @@ export function Sidebar() {
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors",
+                                    "flex items-center gap-3 px-3 h-9 rounded-lg text-[13px] font-medium transition-all duration-[100ms] ease-out",
                                     isActive
-                                        ? "bg-accent/10 text-accent"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                        ? "bg-[hsl(36_87%_93%)] text-accent"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                                 )}
                             >
                                 <item.icon className="h-4 w-4" strokeWidth={isActive ? 2 : 1.5} />
@@ -62,14 +62,14 @@ export function Sidebar() {
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-border/20">
+            <div className="p-3 border-t border-border">
                 <Link
                     href="/settings"
                     className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors",
+                        "flex items-center gap-3 px-3 h-9 rounded-lg text-[13px] font-medium transition-all duration-[100ms] ease-out",
                         pathname === "/settings"
-                            ? "bg-accent/10 text-accent"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                            ? "bg-[hsl(36_87%_93%)] text-accent"
+                            : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     )}
                 >
                     <Settings className="h-4 w-4" strokeWidth={1.5} />

@@ -11,8 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface Project {
     id: string;
@@ -41,9 +40,9 @@ const TimerDisplay = memo(function TimerDisplay({ startTime, isTracking }: { sta
     }, [isTracking, startTime]);
 
     return (
-        <div className="text-3xl font-mono font-bold text-primary" aria-live="off" aria-label={`Timer: ${formatTime(elapsed)}`}>
+        <p className="font-serif text-stat tabular-nums" aria-live="off" aria-label={`Timer: ${formatTime(elapsed)}`}>
             {formatTime(elapsed)}
-        </div>
+        </p>
     );
 });
 
@@ -67,74 +66,68 @@ export function DailyLogWidget({ projects }: { projects: Project[] }) {
     };
 
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Daily Log</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <form action={action} className="space-y-3">
-                    <div className="space-y-1">
-                        <Select name="projectId" required disabled={isTracking}>
-                            <SelectTrigger aria-label="Select project">
-                                <SelectValue placeholder="Select Project" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {projects.map((p) => (
-                                    <SelectItem key={p.id} value={p.id}>
-                                        {p.title}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {state?.errors?.projectId && (
-                            <p className="text-xs text-destructive" role="alert">{state.errors.projectId}</p>
-                        )}
-                    </div>
-
-                    <div className="flex flex-col items-center py-2 space-y-2">
-                        <TimerDisplay startTime={startTime} isTracking={isTracking} />
-                        <Button
-                            type="button"
-                            variant={isTracking ? "destructive" : "default"}
-                            className="w-full"
-                            onClick={handleToggleTimer}
-                        >
-                            {isTracking ? "Stop Timer" : "Start Timer"}
-                        </Button>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <div className="flex-1">
-                            <Input
-                                name="duration"
-                                type="number"
-                                placeholder="Mins"
-                                min="1"
-                                required
-                                aria-label="Duration in minutes"
-                                value={durationMinutes}
-                                onChange={(e) => setDurationMinutes(e.target.value)}
-                                readOnly={isTracking}
-                            />
-                        </div>
-                        <div className="flex-[2]">
-                            <Input name="description" placeholder="Description (optional)" aria-label="Time log description" />
-                        </div>
-                    </div>
-                    {state?.errors?.duration && (
-                        <p className="text-xs text-destructive" role="alert">{state.errors.duration}</p>
+        <Card className="p-6">
+            <form action={action} className="space-y-4">
+                <div>
+                    <Select name="projectId" required disabled={isTracking}>
+                        <SelectTrigger aria-label="Select project" className="h-[38px] rounded-[10px] text-[14px] bg-card">
+                            <SelectValue placeholder="Select Project" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {projects.map((p) => (
+                                <SelectItem key={p.id} value={p.id}>
+                                    {p.title}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {state?.errors?.projectId && (
+                        <p className="mt-1 text-[12px] text-destructive" role="alert">{state.errors.projectId}</p>
                     )}
+                </div>
 
-                    <Button size="sm" type="submit" className="w-full" disabled={isPending || isTracking}>
-                        {isPending ? "Logging..." : "Log Time"}
+                <div className="flex flex-col items-center py-4 space-y-3">
+                    <TimerDisplay startTime={startTime} isTracking={isTracking} />
+                    <Button
+                        type="button"
+                        variant={isTracking ? "destructive" : "default"}
+                        className="w-full"
+                        onClick={handleToggleTimer}
+                    >
+                        {isTracking ? "Stop Timer" : "Start Timer"}
                     </Button>
+                </div>
 
-                    {state?.message && (
-                        <p className="text-xs text-accent text-center" role="status">{state.message}</p>
-                    )}
-                </form>
-            </CardContent>
+                <div className="flex gap-2">
+                    <div className="flex-1">
+                        <Input
+                            name="duration"
+                            type="number"
+                            placeholder="Mins"
+                            min="1"
+                            required
+                            aria-label="Duration in minutes"
+                            value={durationMinutes}
+                            onChange={(e) => setDurationMinutes(e.target.value)}
+                            readOnly={isTracking}
+                        />
+                    </div>
+                    <div className="flex-[2]">
+                        <Input name="description" placeholder="Description (optional)" aria-label="Time log description" />
+                    </div>
+                </div>
+                {state?.errors?.duration && (
+                    <p className="text-[12px] text-destructive" role="alert">{state.errors.duration}</p>
+                )}
+
+                <Button size="sm" type="submit" className="w-full" disabled={isPending || isTracking}>
+                    {isPending ? "Logging..." : "Log Time"}
+                </Button>
+
+                {state?.message && (
+                    <p className="text-[12px] text-accent text-center" role="status">{state.message}</p>
+                )}
+            </form>
         </Card>
     );
 }

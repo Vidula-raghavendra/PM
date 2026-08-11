@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
 });
 
-const cormorant = Cormorant_Garamond({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-serif",
+  display: "swap",
+  axes: ["SOFT", "WONK", "opsz"],
 });
 
 export const metadata: Metadata = {
-  title: "OrbitOS",
-  description: "Project Management for Professionals",
+  title: "Orbit",
+  description: "Project management for freelancers",
 };
 
 export default function RootLayout({
@@ -28,7 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn(
         inter.variable,
-        cormorant.variable,
+        fraunces.variable,
         "min-h-screen bg-background font-sans antialiased"
       )}>
         {children}

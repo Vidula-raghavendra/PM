@@ -15,7 +15,7 @@ function SubmitButton() {
     return (
         <Button
             type="submit"
-            className="w-full h-11 rounded-full text-[14px] font-medium"
+            className="w-full h-[38px] rounded-[10px] text-[13px] font-medium"
             disabled={pending}
         >
             {pending ? "Creating account..." : "Create account"}
@@ -29,19 +29,19 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-6">
             <div className="w-full max-w-[360px]">
-                <div className="mb-10">
-                    <Link href="/" className="text-[15px] font-semibold tracking-tight inline-block mb-10 text-muted-foreground hover:text-foreground transition-colors">
+                <div className="mb-8">
+                    <Link href="/" className="font-serif text-lg tracking-tight inline-block mb-8 text-muted-foreground hover:text-foreground transition-colors duration-[100ms]">
                         Orbit
                     </Link>
-                    <h1 className="text-2xl font-serif tracking-tight mb-1.5">Create your account</h1>
-                    <p className="text-muted-foreground text-[14px]">
+                    <h1 className="font-serif text-display-sm mb-1.5">Create your account</h1>
+                    <p className="text-[13px] text-muted-foreground">
                         Start managing projects in under a minute.
                     </p>
                 </div>
 
                 <form action={action} className="space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor="name" className="text-[13px]">Name</Label>
+                        <Label htmlFor="name" className="text-[13px] font-medium">Name</Label>
                         <Input
                             id="name"
                             name="name"
@@ -49,7 +49,7 @@ export default function RegisterPage() {
                             required
                             autoComplete="name"
                             placeholder="Your name"
-                            className="h-10 rounded-lg text-[14px]"
+                            className="h-[38px] rounded-[10px] text-[14px] bg-card"
                         />
                         {state?.errors?.name && (
                             <p className="text-xs text-destructive" role="alert">{state.errors.name}</p>
@@ -57,7 +57,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="email" className="text-[13px]">Email</Label>
+                        <Label htmlFor="email" className="text-[13px] font-medium">Email</Label>
                         <Input
                             id="email"
                             name="email"
@@ -65,7 +65,7 @@ export default function RegisterPage() {
                             required
                             autoComplete="email"
                             placeholder="you@example.com"
-                            className="h-10 rounded-lg text-[14px]"
+                            className="h-[38px] rounded-[10px] text-[14px] bg-card"
                         />
                         {state?.errors?.email && (
                             <p className="text-xs text-destructive" role="alert">{state.errors.email}</p>
@@ -73,7 +73,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="password" className="text-[13px]">Password</Label>
+                        <Label htmlFor="password" className="text-[13px] font-medium">Password</Label>
                         <Input
                             id="password"
                             name="password"
@@ -81,7 +81,7 @@ export default function RegisterPage() {
                             required
                             autoComplete="new-password"
                             placeholder="••••••••"
-                            className="h-10 rounded-lg text-[14px]"
+                            className="h-[38px] rounded-[10px] text-[14px] bg-card"
                         />
                         <p className="text-[12px] text-muted-foreground">8+ characters, one uppercase, one number.</p>
                         {state?.errors?.password && (
@@ -96,17 +96,17 @@ export default function RegisterPage() {
                     </div>
 
                     {state?.message && (
-                        <p className="text-sm text-destructive text-center" role="alert">{state.message}</p>
+                        <p className="text-[13px] text-destructive text-center" role="alert">{state.message}</p>
                     )}
 
-                    <div className="pt-3">
+                    <div className="pt-2">
                         <SubmitButton />
                     </div>
                 </form>
 
                 <p className="text-center text-[13px] text-muted-foreground mt-6">
                     Have an account?{" "}
-                    <Link href="/login" className="text-foreground hover:text-accent transition-colors">
+                    <Link href="/login" className="text-accent hover:underline underline-offset-4">
                         Sign in
                     </Link>
                 </p>

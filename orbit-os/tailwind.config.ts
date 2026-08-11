@@ -19,6 +19,14 @@ const config: Config = {
                 sans: ["var(--font-sans)"],
                 serif: ["var(--font-serif)"],
             },
+            fontSize: {
+                "display-xl": ["4.5rem", { lineHeight: "0.95", letterSpacing: "-0.03em" }],
+                "display-lg": ["3.5rem", { lineHeight: "1", letterSpacing: "-0.025em" }],
+                "display-md": ["2.5rem", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
+                "display-sm": ["1.875rem", { lineHeight: "1.15", letterSpacing: "-0.015em" }],
+                "stat": ["2.125rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+                "overline": ["0.6875rem", { lineHeight: "1.2", letterSpacing: "0.14em" }],
+            },
             colors: {
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
@@ -45,6 +53,14 @@ const config: Config = {
                     DEFAULT: "hsl(var(--accent))",
                     foreground: "hsl(var(--accent-foreground))",
                 },
+                success: {
+                    DEFAULT: "hsl(var(--success))",
+                    foreground: "hsl(var(--success-foreground))",
+                },
+                warning: {
+                    DEFAULT: "hsl(var(--warning))",
+                    foreground: "hsl(var(--warning-foreground))",
+                },
                 popover: {
                     DEFAULT: "hsl(var(--popover))",
                     foreground: "hsl(var(--popover-foreground))",
@@ -58,6 +74,13 @@ const config: Config = {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
+            },
+            boxShadow: {
+                "xs": "var(--shadow-xs)",
+                "sm": "var(--shadow-sm)",
+                "md": "var(--shadow-md)",
+                "lg": "var(--shadow-lg)",
+                "glow": "var(--shadow-glow)",
             },
         },
     },

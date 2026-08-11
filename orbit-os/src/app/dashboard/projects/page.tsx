@@ -1,8 +1,7 @@
-
 import { ProjectCard } from "@/components/projects/project-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, FolderOpen } from "lucide-react";
 
 import { requireUser } from "@/auth/guard";
 import { ProjectService } from "@/services/project.service";
@@ -16,26 +15,29 @@ export default async function ProjectsPage() {
     const projects = await getProjects();
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-                <Button asChild>
+        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
+            <div className="flex items-end justify-between">
+                <div>
+                    <p className="text-overline uppercase text-muted-foreground mb-3">Projects</p>
+                    <h2 className="font-serif text-display-md">Your work</h2>
+                </div>
+                <Button variant="accent" asChild>
                     <Link href="/dashboard/projects/new">
-                        <Plus className="mr-2 h-4 w-4" /> New Project
+                        <Plus className="mr-2 h-4 w-4" strokeWidth={2} /> New Project
                     </Link>
                 </Button>
             </div>
 
             {projects.length === 0 ? (
-                <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                        <Plus className="h-6 w-6 text-foreground" />
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
+                        <FolderOpen className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold">No projects yet</h3>
-                    <p className="mb-4 mt-2 text-sm text-muted-foreground">
+                    <h3 className="font-serif text-display-sm mb-2">No projects yet</h3>
+                    <p className="text-[13px] text-muted-foreground max-w-[280px] mx-auto mb-6">
                         Create your first project to start tracking tasks and milestones.
                     </p>
-                    <Button asChild>
+                    <Button variant="accent" asChild>
                         <Link href="/dashboard/projects/new">Create Project</Link>
                     </Button>
                 </div>

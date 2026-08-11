@@ -1,17 +1,14 @@
 import { requireUser } from "@/auth/guard";
 import { ProjectService } from "@/services/project.service";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Briefcase } from "lucide-react";
+import { Mail, Phone, Users } from "lucide-react";
 
 export default async function PeoplePage() {
     const userId = await requireUser();
 
-    // Fetch projects where I am owner or collaborator
     const projects = await ProjectService.getProjectsForUser(userId);
 
-    // Group collaborators across projects. Invited-but-not-yet-registered
-    // people have no linked profile, so key on email, which is always present.
     type Person = {
         email: string;
         name: string | null;
@@ -56,61 +53,69 @@ export default async function PeoplePage() {
     const people = Array.from(peopleMap.values());
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">People</h1>
+        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
+            <div>
+                <p className="text-overline uppercase text-muted-foreground mb-3">Team</p>
+                <h2 className="font-serif text-display-md">People</h2>
+            </div>
 
             {people.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground">
-                    No collaborators found. Add team members to your projects to see them here.
+                <div className="text-center py-16">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
+                        <Users className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="font-serif text-display-sm mb-2">No collaborators yet</h3>
+                    <p className="text-[13px] text-muted-foreground max-w-[280px] mx-auto">
+                        Add team members to your projects to see them here.
+                    </p>
                 </div>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {people.map((person) => (
-                        <Card key={person.email}>
-                            <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
-                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
+                        <Card key={person.email} className="p-6">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-semibold text-[15px]">
                                     {(person.name ?? person.email)[0]?.toUpperCase()}
                                 </div>
-                                <div className="flex flex-col">
-                                    <CardTitle className="text-base flex items-center gap-2">
-                                        {person.name || person.email}
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-[15px] font-semibold tracking-tight truncate">
+                                            {person.name || person.email}
+                                        </p>
                                         {person.pending && (
-                                            <Badge variant="outline" className="font-normal">Invited</Badge>
+                                            <Badge variant="archived">Invited</Badge>
                                         )}
-                                    </CardTitle>
-                                    <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                        <Mail className="h-3 w-3" />
-                                        {person.email}
+                                    </div>
+                                    <div className="text-[13px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                                        <Mail className="h-3 w-3 shrink-0" strokeWidth={1.5} />
+                                        <span className="truncate">{person.email}</span>
                                     </div>
                                     {person.phone && (
-                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                            <Phone className="h-3 w-3" />
+                                        <div className="text-[13px] text-muted-foreground flex items-center gap-1.5">
+                                            <Phone className="h-3 w-3 shrink-0" strokeWidth={1.5} />
                                             {person.phone}
                                         </div>
                                     )}
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="mt-4 space-y-2">
-                                    <div className="text-sm font-medium flex items-center gap-2">
-                                        <Briefcase className="h-4 w-4" />
-                                        Shared Projects
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {person.projects.map(p => (
-                                            <Badge key={p.id} variant="secondary">
-                                                {p.title} ({p.role})
-                                            </Badge>
-                                        ))}
-                                    </div>
+                            </div>
+
+                            <div className="pt-4 border-t">
+                                <p className="text-overline uppercase text-muted-foreground mb-2">Shared Projects</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {person.projects.map(p => (
+                                        <Badge key={p.id} variant="secondary" className="text-[11px]">
+                                            {p.title} · {p.role}
+                                        </Badge>
+                                    ))}
                                 </div>
-                                {(person.sector || person.purpose) && (
-                                    <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
-                                        {person.sector && <span className="block">Sector: {person.sector}</span>}
-                                        {person.purpose && <span className="block">Purpose: {person.purpose}</span>}
-                                    </div>
-                                )}
-                            </CardContent>
+                            </div>
+
+                            {(person.sector || person.purpose) && (
+                                <div className="mt-4 pt-4 border-t text-[12px] text-muted-foreground space-y-0.5">
+                                    {person.sector && <span className="block">Sector: {person.sector}</span>}
+                                    {person.purpose && <span className="block">Purpose: {person.purpose}</span>}
+                                </div>
+                            )}
                         </Card>
                     ))}
                 </div>

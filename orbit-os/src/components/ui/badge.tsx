@@ -3,19 +3,23 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+    "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors duration-[100ms] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
     {
         variants: {
             variant: {
                 default:
-                    "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+                    "border-transparent bg-primary text-primary-foreground",
                 secondary:
-                    "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                    "border-transparent bg-secondary text-secondary-foreground",
                 destructive:
-                    "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+                    "border-transparent bg-[hsl(11_55%_95%)] text-destructive",
                 outline: "text-foreground",
-                success: "border-transparent bg-green-500 text-white hover:bg-green-600",
-                warning: "border-transparent bg-yellow-500 text-white hover:bg-yellow-600",
+                success: "border-transparent bg-[hsl(74_37%_90%)] text-[hsl(74_37%_29%)]",
+                warning: "border-transparent bg-[hsl(36_87%_93%)] text-[hsl(38_74%_31%)]",
+                paid: "border-transparent bg-[hsl(74_37%_90%)] text-[hsl(74_37%_29%)]",
+                pending: "border-transparent bg-[hsl(36_87%_93%)] text-[hsl(38_74%_31%)]",
+                overdue: "border-transparent bg-[hsl(11_55%_95%)] text-[hsl(10_61%_40%)]",
+                archived: "border-transparent bg-secondary text-muted-foreground",
             },
         },
         defaultVariants: {

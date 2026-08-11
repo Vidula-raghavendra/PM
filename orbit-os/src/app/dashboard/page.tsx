@@ -1,8 +1,7 @@
 import { requireUser } from "@/auth/guard";
 import { DashboardService } from "@/services/dashboard.service";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { IndianRupee, Briefcase, Clock, Activity } from "lucide-react";
-import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Wallet, FolderOpen, Clock, Activity } from "lucide-react";
 import { formatMoney } from "@/lib/utils";
 import { DailyLogWidget } from "@/components/dashboard/daily-log";
 import { NextTaskWidget } from "@/components/dashboard/next-task";
@@ -32,74 +31,70 @@ export default async function DashboardPage() {
     if (!data) return <div>Please log in</div>;
 
     return (
-        <div className="space-y-12 max-w-[1400px] mx-auto py-8">
-            <div className="flex flex-col gap-2">
-                <p className="text-[11px] tracking-[0.4em] uppercase font-bold opacity-30">Overview</p>
-                <h2 className="text-5xl font-serif leading-tight">Welcome Back</h2>
+        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
+            {/* Page heading */}
+            <div>
+                <p className="text-overline uppercase text-muted-foreground mb-3">Overview</p>
+                <h2 className="font-serif text-display-md">Welcome back</h2>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="border-border/30 bg-[#FBF9F6] shadow-none group hover:bg-[#F5F2ED] transition-all duration-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[11px] tracking-widest uppercase font-bold opacity-50">Total Revenue</CardTitle>
-                        <IndianRupee className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-serif tracking-tight">{formatMoney(data.totalRevenue)}</div>
-                        <p className="text-[10px] tracking-widest uppercase font-bold text-muted-foreground mt-2 opacity-50">All Time</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-border/30 bg-[#FBF9F6] shadow-none group hover:bg-[#F5F2ED] transition-all duration-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[11px] tracking-widest uppercase font-bold opacity-50">Active Projects</CardTitle>
-                        <Briefcase className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-serif tracking-tight">{data.activeProjects}</div>
-                        <p className="text-[10px] tracking-widest uppercase font-bold text-muted-foreground mt-2 opacity-50">In Progress</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-border/30 bg-[#FBF9F6] shadow-none group hover:bg-[#F5F2ED] transition-all duration-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[11px] tracking-widest uppercase font-bold opacity-50">Effort Logged</CardTitle>
-                        <Clock className="h-4 w-4 text-accent transition-transform group-hover:scale-110" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-serif tracking-tight">{data.totalHours}h</div>
-                        <p className="text-[10px] tracking-widest uppercase font-bold text-muted-foreground mt-2 opacity-50">Hours Tracked</p>
-                    </CardContent>
-                </Card>
-
-                <div className="col-span-1">
-                    <NextTaskWidget task={data.nextTask as any} />
-                </div>
-            </div>
-
-            {/* Content Secondary */}
-            <div className="grid gap-12 lg:grid-cols-7">
-                <div className="lg:col-span-3">
-                    <div className="flex justify-between items-center mb-6">
-                        <p className="text-[11px] tracking-[0.2em] uppercase font-bold opacity-30">Time Tracking</p>
+            {/* Stat cards — design system §5.3 */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="p-6">
+                    <div className="flex items-start justify-between">
+                        <p className="text-overline uppercase text-muted-foreground">Total Revenue</p>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+                            <Wallet className="h-4 w-4 text-accent" strokeWidth={1.5} />
+                        </div>
                     </div>
+                    <p className="mt-4 font-serif text-stat tabular-nums">{formatMoney(data.totalRevenue)}</p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">All time</p>
+                </Card>
+
+                <Card className="p-6">
+                    <div className="flex items-start justify-between">
+                        <p className="text-overline uppercase text-muted-foreground">Active Projects</p>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+                            <FolderOpen className="h-4 w-4 text-accent" strokeWidth={1.5} />
+                        </div>
+                    </div>
+                    <p className="mt-4 font-serif text-stat tabular-nums">{data.activeProjects}</p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">In progress</p>
+                </Card>
+
+                <Card className="p-6">
+                    <div className="flex items-start justify-between">
+                        <p className="text-overline uppercase text-muted-foreground">Hours Logged</p>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+                            <Clock className="h-4 w-4 text-accent" strokeWidth={1.5} />
+                        </div>
+                    </div>
+                    <p className="mt-4 font-serif text-stat tabular-nums">{data.totalHours}h</p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">Total tracked</p>
+                </Card>
+
+                <NextTaskWidget task={data.nextTask as any} />
+            </div>
+
+            {/* Secondary content */}
+            <div className="grid gap-8 lg:grid-cols-7">
+                <div className="lg:col-span-3">
+                    <p className="text-overline uppercase text-muted-foreground mb-4">Time Tracking</p>
                     <DailyLogWidget projects={data.activeProjectList} />
                 </div>
 
                 <div className="lg:col-span-4">
-                    <div className="flex justify-between items-center mb-6">
-                        <p className="text-[11px] tracking-[0.2em] uppercase font-bold opacity-30">Recent Activity</p>
-                    </div>
-                    <Card className="h-[400px] border-border/30 bg-[#FBF9F6] shadow-none relative overflow-hidden flex flex-col items-center justify-center">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-                        <CardHeader className="text-center group">
-                            <CardTitle className="font-serif italic text-2xl group-hover:text-accent transition-colors">Activity Feed</CardTitle>
-                            <CardDescription className="max-w-[200px] mx-auto tracking-tight">Your recent activity will appear here.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="mt-8 flex gap-4 opacity-10">
-                            {[1, 2, 3, 4].map(i => <div key={i} className="w-1.5 h-16 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
-                        </CardContent>
+                    <p className="text-overline uppercase text-muted-foreground mb-4">Recent Activity</p>
+                    <Card className="min-h-[360px] flex flex-col items-center justify-center">
+                        <div className="text-center px-6 py-16">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
+                                <Activity className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="font-serif text-display-sm mb-2">Activity feed</h3>
+                            <p className="text-[13px] text-muted-foreground max-w-[240px] mx-auto">
+                                Your recent project activity will appear here as you work.
+                            </p>
+                        </div>
                     </Card>
                 </div>
             </div>

@@ -1,6 +1,4 @@
-
-
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
 import { requireUser } from "@/auth/guard";
@@ -21,41 +19,48 @@ export default async function TimePage() {
     const logs = await getTimeLogs();
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Time Tracking</h1>
-                {/* Add Log Time Button Component Here */}
+        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
+            <div>
+                <p className="text-overline uppercase text-muted-foreground mb-3">Time</p>
+                <h2 className="font-serif text-display-md">Time Tracking</h2>
             </div>
 
-            <div className="rounded-md border">
-                <div className="p-4">
-                    {logs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-                            <Clock className="h-10 w-10 mb-4 opacity-20" />
-                            <p>No time logs recorded yet.</p>
+            <Card>
+                {logs.length === 0 ? (
+                    <div className="text-center px-6 py-16">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
+                            <Clock className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                         </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {logs.map((log) => (
-                                <Card key={log.id} className="shadow-none border-b rounded-none last:border-0">
-                                    <CardContent className="p-4 flex items-center justify-between">
-                                        <div>
-                                            <p className="font-medium">{log.description || "No description"}</p>
-                                            <p className="text-sm text-muted-foreground">{log.project?.title ?? "Unknown project"}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-bold font-mono">{formatDuration(log.duration)}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {log.startTime?.toLocaleDateString() ?? "—"}
-                                            </p>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                        <h3 className="font-serif text-display-sm mb-2">No time logged</h3>
+                        <p className="text-[13px] text-muted-foreground max-w-[280px] mx-auto">
+                            Start a timer from the dashboard to track your work hours.
+                        </p>
+                    </div>
+                ) : (
+                    <div>
+                        {/* Table header */}
+                        <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-6 py-3 border-b text-overline uppercase text-muted-foreground">
+                            <span>Description</span>
+                            <span className="text-right">Duration</span>
+                            <span className="text-right w-24">Date</span>
                         </div>
-                    )}
-                </div>
-            </div>
+                        {logs.map((log) => (
+                            <div key={log.id} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center px-6 py-3.5 border-b last:border-0 hover:bg-secondary/50 transition-colors duration-[100ms]">
+                                <div>
+                                    <p className="text-[15px] font-medium">{log.description || "No description"}</p>
+                                    <p className="text-[13px] text-muted-foreground">{log.project?.title ?? "Unknown project"}</p>
+                                </div>
+                                <span className="font-serif text-[15px] tabular-nums text-right">
+                                    {formatDuration(log.duration)}
+                                </span>
+                                <span className="text-[13px] text-muted-foreground tabular-nums text-right w-24">
+                                    {log.startTime?.toLocaleDateString() ?? "—"}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </Card>
         </div>
     );
 }

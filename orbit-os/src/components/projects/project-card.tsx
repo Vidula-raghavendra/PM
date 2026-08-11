@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, Calendar } from "lucide-react";
-import { cn, formatMoney } from "@/lib/utils";
+import { formatMoney } from "@/lib/utils";
 
 interface ProjectCardProps {
     id: string;
@@ -15,49 +15,52 @@ interface ProjectCardProps {
     progress: number;
 }
 
-const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-    ACTIVE: "default",
-    COMPLETED: "secondary",
-    ARCHIVED: "outline",
+const statusVariant: Record<string, "paid" | "pending" | "overdue" | "archived"> = {
+    ACTIVE: "pending",
+    COMPLETED: "paid",
+    ARCHIVED: "archived",
 };
 
 export function ProjectCard({ project }: { project: ProjectCardProps }) {
     return (
         <Link href={`/dashboard/projects/${project.id}`}>
-            <Card className="hover:bg-muted/50 transition-colors">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-base font-semibold">
+            <Card className="p-6 hover:border-[hsl(30_36%_65%)] hover:shadow-sm cursor-pointer">
+                <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-[15px] font-semibold tracking-tight line-clamp-1">
                         {project.title}
-                    </CardTitle>
-                    <Badge variant={statusVariant[project.status] ?? "outline"}>
+                    </h3>
+                    <Badge variant={statusVariant[project.status] ?? "archived"}>
                         {project.status}
                     </Badge>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-sm text-muted-foreground mb-4">
-                        {project.client || "No Client"}
+                </div>
+
+                <p className="text-[13px] text-muted-foreground mb-4">
+                    {project.client || "No Client"}
+                </p>
+
+                <div className="grid grid-cols-2 gap-4 text-[13px]">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Wallet className="h-4 w-4" strokeWidth={1.5} />
+                        <span className="font-serif text-[15px] text-foreground tabular-nums">
+                            {formatMoney(project.totalBudget ?? 0, project.currency)}
+                        </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                            <Wallet className="h-4 w-4 text-muted-foreground" />
-                            <span>{formatMoney(project.totalBudget ?? 0, project.currency)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                                {project.endDate
-                                    ? project.endDate.toLocaleDateString()
-                                    : "No Deadline"}
-                            </span>
-                        </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="h-4 w-4" strokeWidth={1.5} />
+                        <span className="tabular-nums">
+                            {project.endDate
+                                ? project.endDate.toLocaleDateString()
+                                : "No Deadline"}
+                        </span>
                     </div>
-                    <div className="mt-4 h-2 w-full bg-secondary rounded-full overflow-hidden">
-                        <div
-                            className={cn("h-full bg-primary")}
-                            style={{ width: `${project.progress}%` }}
-                        />
-                    </div>
-                </CardContent>
+                </div>
+
+                <div className="mt-4 h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-accent rounded-full transition-all duration-[240ms]"
+                        style={{ width: `${project.progress}%` }}
+                    />
+                </div>
             </Card>
         </Link>
     );
