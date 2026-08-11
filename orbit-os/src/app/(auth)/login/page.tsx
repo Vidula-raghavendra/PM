@@ -8,14 +8,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Orbit, Key } from "lucide-react";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
 
     return (
-        <Button type="submit" className="w-full h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-[13px] tracking-widest uppercase font-bold" disabled={pending}>
-            {pending ? "Authenticating..." : "Enter Workspace"}
+        <Button
+            type="submit"
+            className="w-full h-11 rounded-full text-[14px] font-medium"
+            disabled={pending}
+        >
+            {pending ? "Signing in..." : "Sign in"}
         </Button>
     );
 }
@@ -24,86 +27,66 @@ export default function LoginPage() {
     const [state, action] = useActionState(login, undefined);
 
     return (
-        <div className="flex min-h-screen bg-background items-center justify-center p-6 selection:bg-accent selection:text-white">
-            <div className="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border/50 bg-background shadow-2xl overflow-hidden rounded-sm">
-
-                {/* Visual Side */}
-                <div className="hidden lg:block relative bg-[#E5E0D8]">
-                    <img
-                        src="https://images.unsplash.com/photo-1498409785341-5b4d38de758a?auto=format&fit=crop&q=80&w=1000"
-                        alt="Workspace Focus"
-                        className="object-cover w-full h-full grayscale-[0.4]"
-                    />
-                    <div className="absolute inset-0 bg-primary/20 mix-blend-overlay" />
-                    <div className="absolute top-12 left-12 right-12 text-white">
-                        <p className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4 opacity-70">Access Portal</p>
-                        <h2 className="text-5xl font-serif leading-tight">Welcome Back to <br /> Your Digital Space</h2>
-                    </div>
+        <div className="min-h-screen bg-background flex items-center justify-center p-6">
+            <div className="w-full max-w-[360px]">
+                <div className="mb-10">
+                    <Link href="/" className="text-[15px] font-semibold tracking-tight inline-block mb-10 text-muted-foreground hover:text-foreground transition-colors">
+                        Orbit
+                    </Link>
+                    <h1 className="text-2xl font-serif tracking-tight mb-1.5">Welcome back</h1>
+                    <p className="text-muted-foreground text-[14px]">
+                        Sign in to your workspace.
+                    </p>
                 </div>
 
-                {/* Form Side */}
-                <div className="p-8 sm:p-16 flex flex-col justify-center">
-                    <div className="mb-12">
-                        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/5 mb-6">
-                            <Orbit className="h-5 w-5 text-primary opacity-50" />
-                        </div>
-                        <h1 className="text-4xl font-serif mb-3 italic tracking-tight">Sign In</h1>
-                        <p className="text-muted-foreground leading-relaxed">
-                            Sign in to continue where you left off.
-                        </p>
-                    </div>
-
-                    <form action={action} className="space-y-10">
-                        <div className="space-y-6">
-                            {/* Email */}
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Email Address</Label>
-                                <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    placeholder="your@email.com"
-                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg"
-                                />
-                                {state?.errors?.email && (
-                                    <p className="text-xs text-destructive">{state.errors.email}</p>
-                                )}
-                            </div>
-
-                            {/* Password */}
-                            <div className="space-y-2">
-                                <Label htmlFor="password" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Account Password</Label>
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    placeholder="••••••••"
-                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg font-mono placeholder:font-sans"
-                                />
-                                {state?.errors?.password && (
-                                    <p className="text-xs text-destructive">{state.errors.password}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {state?.message && (
-                            <p className="text-sm text-destructive text-center p-3 bg-destructive/5 rounded-sm">{state.message}</p>
+                <form action={action} className="space-y-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="email" className="text-[13px]">Email</Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            required
+                            autoComplete="email"
+                            placeholder="you@example.com"
+                            className="h-10 rounded-lg text-[14px]"
+                        />
+                        {state?.errors?.email && (
+                            <p className="text-xs text-destructive" role="alert">{state.errors.email}</p>
                         )}
+                    </div>
 
-                        <div className="space-y-6">
-                            <SubmitButton />
+                    <div className="space-y-1.5">
+                        <Label htmlFor="password" className="text-[13px]">Password</Label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            autoComplete="current-password"
+                            placeholder="••••••••"
+                            className="h-10 rounded-lg text-[14px]"
+                        />
+                        {state?.errors?.password && (
+                            <p className="text-xs text-destructive" role="alert">{state.errors.password}</p>
+                        )}
+                    </div>
 
-                            <p className="text-center text-[11px] tracking-widest uppercase font-bold opacity-40">
-                                Don't have an account?{" "}
-                                <Link href="/register" className="text-accent underline-offset-4 hover:underline">
-                                    Sign Up
-                                </Link>
-                            </p>
-                        </div>
-                    </form>
-                </div>
+                    {state?.message && (
+                        <p className="text-sm text-destructive text-center" role="alert">{state.message}</p>
+                    )}
+
+                    <div className="pt-3">
+                        <SubmitButton />
+                    </div>
+                </form>
+
+                <p className="text-center text-[13px] text-muted-foreground mt-6">
+                    No account?{" "}
+                    <Link href="/register" className="text-foreground hover:text-accent transition-colors">
+                        Create one
+                    </Link>
+                </p>
             </div>
         </div>
     );

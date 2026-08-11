@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
     format,
@@ -15,14 +15,13 @@ import {
     subMonths,
     isToday,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -67,6 +66,13 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
         setIsDialogOpen(true);
     };
 
+    const handleDayKeyDown = useCallback((e: React.KeyboardEvent, date: Date) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleDateClick(date);
+        }
+    }, []);
+
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart);
@@ -86,11 +92,11 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
 
     const getEventColor = (type: string) => {
         switch (type) {
-            case "PROJECT": return "bg-blue-100 text-blue-700 border-blue-200";
-            case "MILESTONE": return "bg-amber-100 text-amber-700 border-amber-200";
-            case "TASK": return "bg-emerald-100 text-emerald-700 border-emerald-200";
-            case "EVENT": return "bg-purple-100 text-purple-700 border-purple-200";
-            default: return "bg-gray-100 text-gray-700";
+            case "PROJECT": return "bg-primary/10 text-primary border-primary/20";
+            case "MILESTONE": return "bg-accent/10 text-accent border-accent/20";
+            case "TASK": return "bg-secondary text-secondary-foreground border-border";
+            case "EVENT": return "bg-muted text-muted-foreground border-border";
+            default: return "bg-muted text-muted-foreground";
         }
     };
 
@@ -98,8 +104,6 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
         if (!selectedDate) return;
 
         startTransition(async () => {
-            // Append simple time if not provided or just use selected date
-            // Ideally we'd have time pickers, but for now we'll just use the date + default times or form input
             const result = await createEvent(null, formData);
             if (result?.message === "Event created successfully") {
                 setIsDialogOpen(false);
@@ -116,10 +120,10 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
                         {format(currentDate, "MMMM yyyy")}
                     </h2>
                     <div className="flex items-center rounded-md border bg-background shadow-sm">
-                        <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
+                        <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8" aria-label="Previous month">
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8">
+                        <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8" aria-label="Next month">
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
@@ -131,23 +135,27 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-px bg-muted rounded-lg overflow-hidden border shadow-sm flex-1">
+            <div className="grid grid-cols-7 gap-px bg-muted rounded-lg overflow-hidden border shadow-sm flex-1" role="grid" aria-label="Calendar">
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="bg-muted/50 p-2 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <div key={day} className="bg-muted/50 p-2 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider" role="columnheader">
                         {day}
                     </div>
                 ))}
-                {calendarDays.map((day, dayIdx) => {
+                {calendarDays.map((day) => {
                     const dayEvents = getDayEvents(day);
                     return (
                         <div
                             key={day.toString()}
+                            role="gridcell"
+                            tabIndex={0}
+                            aria-label={`${format(day, "PPPP")}${dayEvents.length > 0 ? `, ${dayEvents.length} event${dayEvents.length > 1 ? 's' : ''}` : ''}`}
                             className={cn(
-                                "bg-background p-2 min-h-[100px] flex flex-col gap-1 cursor-pointer hover:bg-accent/50 transition-colors relative group",
+                                "bg-background p-2 min-h-[100px] flex flex-col gap-1 cursor-pointer hover:bg-accent/50 transition-colors relative group focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none",
                                 !isSameMonth(day, monthStart) && "text-muted-foreground bg-muted/10",
                                 isToday(day) && "bg-accent/20"
                             )}
                             onClick={() => handleDateClick(day)}
+                            onKeyDown={(e) => handleDayKeyDown(e, day)}
                         >
                             <div className={cn(
                                 "text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full",
@@ -162,6 +170,10 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
                                         <PopoverTrigger asChild>
                                             <div
                                                 onClick={(e) => e.stopPropagation()}
+                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); } }}
+                                                role="button"
+                                                tabIndex={0}
+                                                aria-label={`Event: ${event.title}`}
                                                 className={cn(
                                                     "text-xs px-1.5 py-0.5 rounded border truncate cursor-pointer",
                                                     getEventColor(event.type)
@@ -224,7 +236,6 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="projectId">Project (Optional)</Label>
-                                {/* Ideally fetch projects here, for now simple input or empty */}
                                 <Input id="projectId" name="projectId" placeholder="Project ID" />
                             </div>
                         </div>

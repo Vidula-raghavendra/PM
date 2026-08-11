@@ -15,13 +15,13 @@ interface ProjectCardProps {
     progress: number;
 }
 
-export function ProjectCard({ project }: { project: ProjectCardProps }) {
-    const statusColors: Record<string, string> = {
-        ACTIVE: "default",
-        COMPLETED: "success",
-        ARCHIVED: "secondary",
-    };
+const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    ACTIVE: "default",
+    COMPLETED: "secondary",
+    ARCHIVED: "outline",
+};
 
+export function ProjectCard({ project }: { project: ProjectCardProps }) {
     return (
         <Link href={`/dashboard/projects/${project.id}`}>
             <Card className="hover:bg-muted/50 transition-colors">
@@ -29,7 +29,7 @@ export function ProjectCard({ project }: { project: ProjectCardProps }) {
                     <CardTitle className="text-base font-semibold">
                         {project.title}
                     </CardTitle>
-                    <Badge variant={statusColors[project.status] as any || "outline"}>
+                    <Badge variant={statusVariant[project.status] ?? "outline"}>
                         {project.status}
                     </Badge>
                 </CardHeader>

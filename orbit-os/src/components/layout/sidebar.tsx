@@ -13,7 +13,6 @@ import {
     Target,
     Settings,
     Calendar as CalendarIcon,
-    Orbit,
 } from "lucide-react";
 
 const navigation = [
@@ -30,19 +29,17 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="flex h-full w-72 flex-col border-r border-border/50 bg-[#FBF9F6] text-foreground">
-            {/* Branding */}
-            <div className="flex h-24 items-center px-8 border-b border-border/30">
-                <Link href="/dashboard" className="flex items-center gap-3 group">
-                    <Orbit className="h-6 w-6 text-accent group-hover:rotate-45 transition-transform duration-500" />
-                    <h1 className="text-2xl font-serif italic tracking-tight">Orbit OS</h1>
+        <div className="flex h-full w-60 flex-col border-r border-border/40 bg-card text-foreground">
+            {/* Brand */}
+            <div className="flex h-14 items-center px-6 border-b border-border/20">
+                <Link href="/dashboard" className="text-[15px] font-semibold tracking-tight hover:opacity-80 transition-opacity">
+                    Orbit
                 </Link>
             </div>
 
             {/* Navigation */}
-            <div className="flex-1 overflow-y-auto px-6 py-12">
-                <p className="text-[11px] tracking-[0.2em] uppercase font-bold opacity-30 mb-8 px-2">Navigation</p>
-                <nav className="space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 py-4">
+                <nav className="space-y-0.5">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href;
                         return (
@@ -50,13 +47,13 @@ export function Sidebar() {
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "flex items-center gap-4 px-2 py-1 text-[13px] tracking-widest uppercase font-bold transition-all duration-300",
+                                    "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors",
                                     isActive
-                                        ? "text-accent border-l-2 border-accent pl-4 -ml-2"
-                                        : "text-muted-foreground hover:text-foreground opacity-60 hover:opacity-100"
+                                        ? "bg-accent/10 text-accent"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                 )}
                             >
-                                <item.icon className={cn("h-4 w-4", isActive ? "text-accent" : "")} strokeWidth={isActive ? 2.5 : 2} />
+                                <item.icon className="h-4 w-4" strokeWidth={isActive ? 2 : 1.5} />
                                 {item.name}
                             </Link>
                         );
@@ -65,19 +62,20 @@ export function Sidebar() {
             </div>
 
             {/* Footer */}
-            <div className="p-8 border-t border-border/30">
+            <div className="p-3 border-t border-border/20">
                 <Link
                     href="/settings"
                     className={cn(
-                        "flex items-center gap-4 px-2 py-1 text-[13px] tracking-widest uppercase font-bold transition-all opacity-40 hover:opacity-100",
-                        pathname === "/settings" ? "text-accent opacity-100" : "text-muted-foreground"
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors",
+                        pathname === "/settings"
+                            ? "bg-accent/10 text-accent"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
-                    <Settings className="h-4 w-4" />
-                    Preferences
+                    <Settings className="h-4 w-4" strokeWidth={1.5} />
+                    Settings
                 </Link>
             </div>
         </div>
     );
 }
-

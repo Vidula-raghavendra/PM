@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import {
     Select,
@@ -24,7 +25,7 @@ type Milestone = {
     startDate: string;
     dueDate: string;
     checklist: string[];
-    assignedCollaborators: string[]; // collaborator IDs active in this phase
+    assignedCollaborators: string[];
 };
 
 type Collaborator = {
@@ -145,12 +146,14 @@ export function ProjectFormV2() {
     return (
         <div className="space-y-6">
             {/* Progress Steps */}
-            <div className="flex justify-between mb-8 px-4">
+            <div className="flex justify-between mb-8 px-4" role="navigation" aria-label="Form progress">
                 {stepLabels.map((label, i) => {
                     const s = i + 1;
                     return (
                         <div key={s} className={`flex items-center ${s <= step ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border mr-2 ${s <= step ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border mr-2 ${s <= step ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                                aria-current={s === step ? "step" : undefined}
+                            >
                                 {s}
                             </div>
                             <span className="hidden sm:inline text-sm">{label}</span>
@@ -178,7 +181,7 @@ export function ProjectFormV2() {
                 </CardHeader>
                 <CardContent className="space-y-4">
 
-                    {/* ─── STEP 1: DETAILS ─── */}
+                    {/* STEP 1: DETAILS */}
                     {step === 1 && (
                         <div className="grid gap-4">
                             <div className="space-y-2">
@@ -225,30 +228,32 @@ export function ProjectFormV2() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="project-desc">Description</Label>
-                                <textarea
+                                <Textarea
                                     id="project-desc"
-                                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={basics.description}
                                     onChange={(e) => setBasics({ ...basics, description: e.target.value })}
                                     placeholder="What does this project involve? Key goals, deliverables, constraints..."
+                                    className="min-h-[80px]"
                                 />
                             </div>
                         </div>
                     )}
 
-                    {/* ─── STEP 2: PHASES ─── */}
+                    {/* STEP 2: PHASES */}
                     {step === 2 && (
                         <div className="space-y-4">
                             {milestones.map((m, idx) => {
                                 const isExpanded = expandedPhase === m.id;
                                 return (
-                                    <div key={m.id} className="border rounded-md bg-slate-50 overflow-hidden">
-                                        {/* Phase header — always visible */}
+                                    <div key={m.id} className="border rounded-md bg-secondary overflow-hidden">
+                                        {/* Phase header */}
                                         <div className="flex items-center gap-3 p-4">
                                             <button
                                                 type="button"
                                                 onClick={() => setExpandedPhase(isExpanded ? null : m.id)}
-                                                className="text-muted-foreground hover:text-primary"
+                                                className="h-8 w-8 min-w-[32px] flex items-center justify-center rounded text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                                aria-label={isExpanded ? `Collapse phase ${idx + 1}` : `Expand phase ${idx + 1}`}
+                                                aria-expanded={isExpanded}
                                             >
                                                 {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                             </button>
@@ -266,8 +271,8 @@ export function ProjectFormV2() {
                                                     <Input type="date" value={m.dueDate} onChange={(e) => updateMilestone(m.id, 'dueDate', e.target.value)} />
                                                 </div>
                                                 <div className="sm:col-span-2 flex justify-end">
-                                                    <Button variant="ghost" size="icon" onClick={() => removeMilestone(m.id)}>
-                                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                                    <Button variant="ghost" size="icon" onClick={() => removeMilestone(m.id)} aria-label={`Remove phase ${idx + 1}`}>
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
                                                     </Button>
                                                 </div>
                                             </div>
@@ -278,18 +283,18 @@ export function ProjectFormV2() {
                                             <div className="px-4 pb-4 pt-0 space-y-4 border-t mx-4 mt-0 pt-4">
                                                 <div className="space-y-2">
                                                     <Label>Phase Description</Label>
-                                                    <textarea
-                                                        className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                                    <Textarea
                                                         value={m.description}
                                                         onChange={(e) => updateMilestone(m.id, 'description', e.target.value)}
                                                         placeholder="What happens in this phase? Key deliverables, dependencies, notes..."
+                                                        className="min-h-[60px]"
                                                     />
                                                 </div>
 
                                                 {/* Assigned collaborators for this phase */}
                                                 {collaborators.length > 0 && (
                                                     <div className="space-y-2">
-                                                        <Label>Who's involved in this phase?</Label>
+                                                        <Label>Who&apos;s involved in this phase?</Label>
                                                         <div className="flex flex-wrap gap-2">
                                                             {collaborators.map((c) => {
                                                                 const isAssigned = m.assignedCollaborators.includes(c.id);
@@ -304,6 +309,8 @@ export function ProjectFormV2() {
                                                                             updateMilestone(m.id, 'assignedCollaborators', next);
                                                                         }}
                                                                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${isAssigned ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-muted-foreground hover:bg-muted"}`}
+                                                                        aria-pressed={isAssigned}
+                                                                        aria-label={`${isAssigned ? 'Remove' : 'Add'} ${c.email || c.role || 'collaborator'} ${isAssigned ? 'from' : 'to'} this phase`}
                                                                     >
                                                                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color }} />
                                                                         {c.email || c.role || "Unnamed"}
@@ -321,7 +328,7 @@ export function ProjectFormV2() {
                                                             <div key={i} className="flex items-center gap-2">
                                                                 <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                                                                 <span className="text-sm flex-1">{item}</span>
-                                                                <Button variant="ghost" size="icon" onClick={() => removeChecklistItem(m.id, i)} className="h-6 w-6">
+                                                                <Button variant="ghost" size="icon" onClick={() => removeChecklistItem(m.id, i)} className="h-6 w-6" aria-label={`Remove checklist item: ${item}`}>
                                                                     <Trash2 className="h-3 w-3 text-muted-foreground" />
                                                                 </Button>
                                                             </div>
@@ -357,11 +364,11 @@ export function ProjectFormV2() {
                         </div>
                     )}
 
-                    {/* ─── STEP 3: TEAM (moved before budget) ─── */}
+                    {/* STEP 3: TEAM */}
                     {step === 3 && (
                         <div className="space-y-4">
                             {collaborators.map((c) => (
-                                <div key={c.id} className="grid gap-4 p-4 border rounded-md sm:grid-cols-12 items-end bg-slate-50">
+                                <div key={c.id} className="grid gap-4 p-4 border rounded-md sm:grid-cols-12 items-end bg-secondary">
                                     <div className="sm:col-span-5 space-y-2">
                                         <Label>Email</Label>
                                         <Input type="email" value={c.email} onChange={(e) => updateCollaborator(c.id, 'email', e.target.value)} placeholder="collab@example.com" />
@@ -375,8 +382,8 @@ export function ProjectFormV2() {
                                         <Input type="color" value={c.color} onChange={(e) => updateCollaborator(c.id, 'color', e.target.value)} className="h-10 w-full p-1 cursor-pointer" />
                                     </div>
                                     <div className="sm:col-span-2 flex justify-end">
-                                        <Button variant="ghost" size="icon" onClick={() => setCollaborators(collaborators.filter(cb => cb.id !== c.id))}>
-                                            <Trash2 className="h-4 w-4 text-red-500" />
+                                        <Button variant="ghost" size="icon" onClick={() => setCollaborators(collaborators.filter(cb => cb.id !== c.id))} aria-label={`Remove collaborator ${c.email || 'unnamed'}`}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
                                         </Button>
                                     </div>
                                 </div>
@@ -385,12 +392,12 @@ export function ProjectFormV2() {
                                 <Plus className="h-4 w-4 mr-2" /> Add Collaborator
                             </Button>
                             {collaborators.length === 0 && (
-                                <p className="text-sm text-muted-foreground text-center py-4">No collaborators yet. You can skip this step if you're working solo.</p>
+                                <p className="text-sm text-muted-foreground text-center py-4">No collaborators yet. You can skip this step if you&apos;re working solo.</p>
                             )}
                         </div>
                     )}
 
-                    {/* ─── STEP 4: BUDGET & SPLIT ─── */}
+                    {/* STEP 4: BUDGET & SPLIT */}
                     {step === 4 && (
                         <div className="space-y-6">
                             <div className="space-y-2">
@@ -405,13 +412,12 @@ export function ProjectFormV2() {
                                 />
                             </div>
 
-                            {/* Split cards — only show if there are collaborators */}
                             {collaborators.length > 0 && (
                                 <>
                                     <div className="space-y-3">
                                         <h4 className="font-semibold text-sm">Revenue Split</h4>
                                         {collaborators.map((c) => (
-                                            <div key={c.id} className="flex items-center gap-4 p-3 border rounded-md bg-slate-50">
+                                            <div key={c.id} className="flex items-center gap-4 p-3 border rounded-md bg-secondary">
                                                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
                                                 <span className="text-sm flex-1 truncate">{c.email || "Unnamed"}</span>
                                                 <div className="flex items-center gap-2">
@@ -422,6 +428,7 @@ export function ProjectFormV2() {
                                                         value={numDisplay(c.splitPercentage)}
                                                         placeholder="0"
                                                         onChange={(e) => updateCollaborator(c.id, 'splitPercentage', parseNum(e.target.value))}
+                                                        aria-label={`Split percentage for ${c.email || 'collaborator'}`}
                                                     />
                                                     <span className="text-xs text-muted-foreground w-4">%</span>
                                                     <span className="text-sm font-medium w-28 text-right">
@@ -433,7 +440,7 @@ export function ProjectFormV2() {
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
-                                        <Card className="bg-slate-50">
+                                        <Card className="bg-secondary">
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-sm font-medium">Team Share</CardTitle>
                                             </CardHeader>
@@ -444,7 +451,7 @@ export function ProjectFormV2() {
                                                 <p className="text-xs text-muted-foreground">{totalCollabSplit}% of budget</p>
                                             </CardContent>
                                         </Card>
-                                        <Card className="bg-slate-50 border-primary/20">
+                                        <Card className="bg-secondary border-primary/20">
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-sm font-medium text-primary">Your Revenue</CardTitle>
                                             </CardHeader>
@@ -461,7 +468,7 @@ export function ProjectFormV2() {
 
                             {/* Phase payment breakdown */}
                             {milestones.length > 0 && (
-                                <div className="bg-slate-50 p-4 rounded-md space-y-4">
+                                <div className="bg-secondary p-4 rounded-md space-y-4">
                                     <h4 className="font-semibold text-sm flex items-center"><HandCoins className="h-4 w-4 mr-2" /> Payment by Phase</h4>
                                     {milestones.map((m) => (
                                         <div key={m.id} className="grid grid-cols-12 gap-4 items-center">
@@ -474,6 +481,7 @@ export function ProjectFormV2() {
                                                     value={numDisplay(m.percentage)}
                                                     placeholder="0"
                                                     onChange={(e) => updateMilestone(m.id, 'percentage', parseNum(e.target.value))}
+                                                    aria-label={`Payment percentage for ${m.title || 'phase'}`}
                                                 />
                                                 <span className="text-xs text-muted-foreground">%</span>
                                             </div>
@@ -487,7 +495,7 @@ export function ProjectFormV2() {
                         </div>
                     )}
 
-                    {/* ─── STEP 5: REVIEW ─── */}
+                    {/* STEP 5: REVIEW */}
                     {step === 5 && (
                         <div className="space-y-6">
                             <div className="space-y-2">
@@ -496,13 +504,13 @@ export function ProjectFormV2() {
                                 <p className="text-xs text-muted-foreground">Optional, but recommended.</p>
                             </div>
 
-                            <div className="bg-slate-100 p-4 rounded-md space-y-3 text-sm">
+                            <div className="bg-muted p-4 rounded-md space-y-3 text-sm">
                                 <h4 className="font-bold">Summary</h4>
                                 <div className="grid grid-cols-2 gap-1">
-                                    <span className="text-muted-foreground">Project:</span> <span className="font-medium">{basics.title || "—"}</span>
-                                    <span className="text-muted-foreground">Client:</span> <span className="font-medium">{basics.client || "—"}</span>
-                                    <span className="text-muted-foreground">Type:</span> <span className="font-medium">{basics.type || "—"}</span>
-                                    <span className="text-muted-foreground">Category:</span> <span className="font-medium">{basics.category || "—"}</span>
+                                    <span className="text-muted-foreground">Project:</span> <span className="font-medium">{basics.title || "\u2014"}</span>
+                                    <span className="text-muted-foreground">Client:</span> <span className="font-medium">{basics.client || "\u2014"}</span>
+                                    <span className="text-muted-foreground">Type:</span> <span className="font-medium">{basics.type || "\u2014"}</span>
+                                    <span className="text-muted-foreground">Category:</span> <span className="font-medium">{basics.category || "\u2014"}</span>
                                     <span className="text-muted-foreground">Budget:</span> <span className="font-medium">{finance.currency} {finance.totalBudget.toLocaleString()}</span>
                                     <span className="text-muted-foreground">Phases:</span> <span className="font-medium">{milestones.length}</span>
                                     <span className="text-muted-foreground">Team:</span> <span className="font-medium">{collaborators.length + 1} (including you)</span>
@@ -519,7 +527,7 @@ export function ProjectFormV2() {
                         </div>
                     )}
 
-                    {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+                    {error && <p className="text-destructive text-sm mt-4" role="alert">{error}</p>}
 
                 </CardContent>
                 <CardFooter className="flex justify-between">

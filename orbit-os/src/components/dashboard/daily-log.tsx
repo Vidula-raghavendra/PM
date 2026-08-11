@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, memo } from "react";
 import { logTime } from "@/app/actions/dashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,45 +19,51 @@ interface Project {
     title: string;
 }
 
+function formatTime(seconds: number) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+const TimerDisplay = memo(function TimerDisplay({ startTime, isTracking }: { startTime: number | null; isTracking: boolean }) {
+    const [elapsed, setElapsed] = useState(0);
+
+    useEffect(() => {
+        if (!isTracking || !startTime) {
+            setElapsed(0);
+            return;
+        }
+        const interval = setInterval(() => {
+            setElapsed(Math.floor((Date.now() - startTime) / 1000));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [isTracking, startTime]);
+
+    return (
+        <div className="text-3xl font-mono font-bold text-primary" aria-live="off" aria-label={`Timer: ${formatTime(elapsed)}`}>
+            {formatTime(elapsed)}
+        </div>
+    );
+});
+
 export function DailyLogWidget({ projects }: { projects: Project[] }) {
     const [state, action, isPending] = useActionState(logTime, undefined);
     const [isTracking, setIsTracking] = useState(false);
     const [startTime, setStartTime] = useState<number | null>(null);
-    const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [durationMinutes, setDurationMinutes] = useState("");
 
-    // Timer logic
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isTracking && startTime) {
-            interval = setInterval(() => {
-                const now = Date.now();
-                setElapsedSeconds(Math.floor((now - startTime) / 1000));
-            }, 1000);
-        }
-        return () => clearInterval(interval);
-    }, [isTracking, startTime]);
-
     const handleToggleTimer = () => {
-        if (isTracking) {
-            // Stop logic
+        if (isTracking && startTime) {
             setIsTracking(false);
-            const minutes = Math.ceil(elapsedSeconds / 60);
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.ceil(elapsed / 60);
             setDurationMinutes(minutes.toString());
             setStartTime(null);
         } else {
-            // Start logic
             setStartTime(Date.now());
-            setElapsedSeconds(0);
             setIsTracking(true);
         }
-    };
-
-    const formatTime = (seconds: number) => {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -70,7 +76,7 @@ export function DailyLogWidget({ projects }: { projects: Project[] }) {
                 <form action={action} className="space-y-3">
                     <div className="space-y-1">
                         <Select name="projectId" required disabled={isTracking}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Select project">
                                 <SelectValue placeholder="Select Project" />
                             </SelectTrigger>
                             <SelectContent>
@@ -82,15 +88,12 @@ export function DailyLogWidget({ projects }: { projects: Project[] }) {
                             </SelectContent>
                         </Select>
                         {state?.errors?.projectId && (
-                            <p className="text-xs text-red-500">{state.errors.projectId}</p>
+                            <p className="text-xs text-destructive" role="alert">{state.errors.projectId}</p>
                         )}
                     </div>
 
-                    {/* Timer Display */}
                     <div className="flex flex-col items-center py-2 space-y-2">
-                        <div className="text-3xl font-mono font-bold text-primary">
-                            {formatTime(elapsedSeconds)}
-                        </div>
+                        <TimerDisplay startTime={startTime} isTracking={isTracking} />
                         <Button
                             type="button"
                             variant={isTracking ? "destructive" : "default"}
@@ -109,17 +112,18 @@ export function DailyLogWidget({ projects }: { projects: Project[] }) {
                                 placeholder="Mins"
                                 min="1"
                                 required
+                                aria-label="Duration in minutes"
                                 value={durationMinutes}
                                 onChange={(e) => setDurationMinutes(e.target.value)}
                                 readOnly={isTracking}
                             />
                         </div>
                         <div className="flex-[2]">
-                            <Input name="description" placeholder="Description (optional)" />
+                            <Input name="description" placeholder="Description (optional)" aria-label="Time log description" />
                         </div>
                     </div>
                     {state?.errors?.duration && (
-                        <p className="text-xs text-red-500">{state.errors.duration}</p>
+                        <p className="text-xs text-destructive" role="alert">{state.errors.duration}</p>
                     )}
 
                     <Button size="sm" type="submit" className="w-full" disabled={isPending || isTracking}>
@@ -127,7 +131,7 @@ export function DailyLogWidget({ projects }: { projects: Project[] }) {
                     </Button>
 
                     {state?.message && (
-                        <p className="text-xs text-green-600 text-center">{state.message}</p>
+                        <p className="text-xs text-accent text-center" role="status">{state.message}</p>
                     )}
                 </form>
             </CardContent>

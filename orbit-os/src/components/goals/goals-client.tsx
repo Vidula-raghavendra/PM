@@ -3,15 +3,15 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Plus, Check, MoreVertical, Trash, Target } from "lucide-react";
+import { Plus, Check, Trash, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
     DialogFooter,
+    DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
     async function handleCreate(formData: FormData) {
         setIsDialogOpen(false);
@@ -48,10 +49,11 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
         });
     }
 
-    async function handleDelete(id: string) {
-        if (!confirm("Delete this goal?")) return;
+    function handleDeleteConfirm() {
+        if (!deleteTarget) return;
         startTransition(async () => {
-            await deleteGoal(id);
+            await deleteGoal(deleteTarget.id);
+            setDeleteTarget(null);
         });
     }
 
@@ -86,21 +88,28 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                                     <div className="font-medium flex items-center gap-2">
                                         <button
                                             onClick={() => handleToggle(goal.id)}
-                                            className="h-5 w-5 rounded-full border border-primary flex items-center justify-center hover:bg-primary/10 transition-colors"
+                                            className="h-8 w-8 min-w-[32px] rounded-full border border-primary flex items-center justify-center hover:bg-primary/10 transition-colors"
                                             disabled={isPending}
+                                            aria-label={`Mark "${goal.title}" as achieved`}
                                         >
                                             {/* Empty circle for todo */}
                                         </button>
                                         <span className={cn(isPending && "opacity-50")}>{goal.title}</span>
                                     </div>
-                                    {goal.description && <p className="text-xs text-muted-foreground ml-7">{goal.description}</p>}
+                                    {goal.description && <p className="text-xs text-muted-foreground ml-10">{goal.description}</p>}
                                     {goal.targetDate && (
-                                        <div className="text-xs text-muted-foreground ml-7">
+                                        <div className="text-xs text-muted-foreground ml-10">
                                             Target: {format(new Date(goal.targetDate), 'PPP')}
                                         </div>
                                     )}
                                 </div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDelete(goal.id)}>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => setDeleteTarget({ id: goal.id, title: goal.title })}
+                                    aria-label={`Delete goal "${goal.title}"`}
+                                >
                                     <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                                 </Button>
                             </div>
@@ -119,21 +128,28 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {achievedGoals.map(goal => (
-                            <div key={goal.id} className="flex items-start justify-between p-3 border rounded-lg bg-muted/20 opacity-75">
+                            <div key={goal.id} className="flex items-start justify-between p-3 border rounded-lg bg-muted/20">
                                 <div className="space-y-1">
                                     <div className="font-medium flex items-center gap-2">
                                         <button
                                             onClick={() => handleToggle(goal.id)}
-                                            className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
+                                            className="h-8 w-8 min-w-[32px] rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
                                             disabled={isPending}
+                                            aria-label={`Mark "${goal.title}" as in progress`}
                                         >
                                             <Check className="h-3 w-3" />
                                         </button>
                                         <span className="line-through text-muted-foreground">{goal.title}</span>
                                     </div>
-                                    {goal.description && <p className="text-xs text-muted-foreground ml-7">{goal.description}</p>}
+                                    {goal.description && <p className="text-xs text-muted-foreground ml-10">{goal.description}</p>}
                                 </div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(goal.id)}>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => setDeleteTarget({ id: goal.id, title: goal.title })}
+                                    aria-label={`Delete goal "${goal.title}"`}
+                                >
                                     <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                                 </Button>
                             </div>
@@ -143,6 +159,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                 </Card>
             </div>
 
+            {/* Create Goal Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -166,6 +183,24 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                             <Button type="submit">Create Goal</Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Goal</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete &ldquo;{deleteTarget?.title}&rdquo;? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+                        <Button type="button" variant="destructive" onClick={handleDeleteConfirm} disabled={isPending}>
+                            {isPending ? "Deleting..." : "Delete"}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
