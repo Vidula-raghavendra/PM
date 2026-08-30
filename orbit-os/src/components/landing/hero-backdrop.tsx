@@ -20,10 +20,18 @@ export function HeroBackdrop({ photo }: { photo?: string }) {
                    `unoptimized` skips re-encoding a small source, which only
                    costs sharpness. */
                 <>
-                    {/* The frame keeps its own 16:9 ratio at the top of the
-                        section; the ground below continues its lowest tone so
-                        there is no seam if the content runs taller. */}
-                    <div className="absolute inset-0 bg-[#3E5A32]" />
+                    {/* One continuous ground. The frame sits at the top in its
+                        own 16:9 ratio; below it the photograph's darkest grass
+                        tone carries straight down and resolves to page white
+                        only at the very bottom, so the section reads as a
+                        single scene with a single transition. */}
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            background:
+                                "linear-gradient(180deg, #3E5A32 0%, #37512D 42%, #2F4726 100%)",
+                        }}
+                    />
                     <div className="absolute inset-x-0 top-0 aspect-[16/9] w-full">
                         <Image
                             src={photo}
@@ -33,6 +41,15 @@ export function HeroBackdrop({ photo }: { photo?: string }) {
                             unoptimized
                             sizes="100vw"
                             className="object-cover object-center"
+                        />
+                        {/* Blend the frame's lower edge into that ground so the
+                            photo does not end on a hard line. */}
+                        <div
+                            className="absolute inset-x-0 bottom-0 h-[18%]"
+                            style={{
+                                background:
+                                    "linear-gradient(180deg, transparent 0%, rgba(62,90,50,0.55) 55%, #3E5A32 100%)",
+                            }}
                         />
                     </div>
                 </>
@@ -65,12 +82,12 @@ export function HeroBackdrop({ photo }: { photo?: string }) {
                 }}
             />
 
-            {/* Bottom fade into the page ground so the section has no seam */}
+            {/* The one transition out of the scene, at the very bottom. */}
             <div
-                className="absolute inset-x-0 bottom-0 h-[15%]"
+                className="absolute inset-x-0 bottom-0 h-[38%]"
                 style={{
                     background:
-                        "linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.55) 62%, #FFFFFF 100%)",
+                        "linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.28) 46%, rgba(255,255,255,0.82) 82%, #FFFFFF 100%)",
                 }}
             />
 

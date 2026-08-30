@@ -24,6 +24,8 @@ const config: Config = {
                 serif: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
                 // Marketing headline voice. Italic by design — see .display-italic.
                 display: ["var(--font-display)", "Georgia", "serif"],
+                // Hero tagline voice.
+                tagline: ["var(--font-tagline)", "var(--font-sans)", "sans-serif"],
             },
             fontSize: {
                 // Hero 64–72 / section 40–48 / h3 24–28, tight leading on
