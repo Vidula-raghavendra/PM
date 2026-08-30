@@ -23,43 +23,63 @@ const statusVariant: Record<string, "paid" | "pending" | "overdue" | "archived">
 
 export function ProjectCard({ project }: { project: ProjectCardProps }) {
     return (
-        <Link href={`/dashboard/projects/${project.id}`}>
-            <Card className="p-6 hover:border-[hsl(30_36%_65%)] hover:shadow-sm cursor-pointer">
-                <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-[15px] font-semibold tracking-tight line-clamp-1">
+        <Link href={`/dashboard/projects/${project.id}`} className="group block">
+            {/* Hover/elevation lives in .liquid on Card — the card must
+                not restate it, or the two transitions fight. */}
+            <Card className="h-full cursor-pointer p-5">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                    {/* min-w-0 lets line-clamp actually clamp instead of
+                        forcing the badge out of the row. */}
+                    <h3 className="line-clamp-1 min-w-0 text-[15px] font-semibold tracking-tight">
                         {project.title}
                     </h3>
-                    <Badge variant={statusVariant[project.status] ?? "archived"}>
+                    <Badge
+                        variant={statusVariant[project.status] ?? "archived"}
+                        className="shrink-0"
+                    >
                         {project.status}
                     </Badge>
                 </div>
 
-                <p className="text-[13px] text-muted-foreground mb-4">
-                    {project.client || "No Client"}
+                <p className="mb-4 line-clamp-1 text-[13px] text-muted-foreground">
+                    {project.client || "No client"}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 text-[13px]">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Wallet className="h-4 w-4" strokeWidth={1.5} />
-                        <span className="font-serif text-[15px] text-foreground tabular-nums">
+                    <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                        <Wallet className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                        <span className="truncate font-semibold text-[15px] tabular-nums text-foreground">
                             {formatMoney(project.totalBudget ?? 0, project.currency)}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Calendar className="h-4 w-4" strokeWidth={1.5} />
-                        <span className="tabular-nums">
+                    <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                        <Calendar className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                        <span className="truncate tabular-nums">
                             {project.endDate
                                 ? project.endDate.toLocaleDateString()
-                                : "No Deadline"}
+                                : "No deadline"}
                         </span>
                     </div>
                 </div>
 
-                <div className="mt-4 h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                <div className="mt-5">
+                    <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>Progress</span>
+                        <span className="tabular-nums">{project.progress}%</span>
+                    </div>
                     <div
-                        className="h-full bg-accent rounded-full transition-all duration-[240ms]"
-                        style={{ width: `${project.progress}%` }}
-                    />
+                        className="h-1.5 w-full overflow-hidden rounded-full bg-[hsl(0_0%_94%)]"
+                        role="progressbar"
+                        aria-valuenow={project.progress}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${project.title} progress`}
+                    >
+                        <div
+                            className="h-full rounded-full bg-accent transition-[width] duration-500 ease-out"
+                            style={{ width: `${project.progress}%` }}
+                        />
+                    </div>
                 </div>
             </Card>
         </Link>

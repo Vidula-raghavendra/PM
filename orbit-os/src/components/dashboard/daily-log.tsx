@@ -40,7 +40,7 @@ const TimerDisplay = memo(function TimerDisplay({ startTime, isTracking }: { sta
     }, [isTracking, startTime]);
 
     return (
-        <p className="font-serif text-stat tabular-nums" aria-live="off" aria-label={`Timer: ${formatTime(elapsed)}`}>
+        <p className="text-stat tabular-nums" aria-live="off" aria-label={`Timer: ${formatTime(elapsed)}`}>
             {formatTime(elapsed)}
         </p>
     );
@@ -125,7 +125,7 @@ export function DailyLogWidget({ projects }: { projects: Project[] }) {
                 </Button>
 
                 {state?.message && (
-                    <p className="text-[12px] text-accent text-center" role="status">{state.message}</p>
+                    <p className="text-[12px] text-accent-ink text-center" role="status">{state.message}</p>
                 )}
             </form>
         </Card>

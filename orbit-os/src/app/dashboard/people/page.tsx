@@ -3,6 +3,7 @@ import { ProjectService } from "@/services/project.service";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Users } from "lucide-react";
+import { PageShell, PageHeader, EmptyState } from "@/components/dashboard/page-shell";
 
 export default async function PeoplePage() {
     const userId = await requireUser();
@@ -53,28 +54,23 @@ export default async function PeoplePage() {
     const people = Array.from(peopleMap.values());
 
     return (
-        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
-            <div>
-                <p className="text-overline uppercase text-muted-foreground mb-3">Team</p>
-                <h2 className="font-serif text-display-md">People</h2>
-            </div>
+        <PageShell>
+            <PageHeader eyebrow="Team" title="People" />
 
             {people.length === 0 ? (
-                <div className="text-center py-16">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
-                        <Users className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-                    </div>
-                    <h3 className="font-serif text-display-sm mb-2">No collaborators yet</h3>
-                    <p className="text-[13px] text-muted-foreground max-w-[280px] mx-auto">
-                        Add team members to your projects to see them here.
-                    </p>
+                <div className="surface-card">
+                    <EmptyState
+                        icon={Users}
+                        title="No collaborators yet"
+                        description="Add team members to your projects to see them here."
+                    />
                 </div>
             ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 stagger-children">
                     {people.map((person) => (
                         <Card key={person.email} className="p-6">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-semibold text-[15px]">
+                                <div className="h-10 w-10 rounded-full bg-[hsl(var(--background-alt))] ring-1 ring-border flex items-center justify-center text-accent-ink font-bold text-[14px]">
                                     {(person.name ?? person.email)[0]?.toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
@@ -99,8 +95,8 @@ export default async function PeoplePage() {
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t">
-                                <p className="text-overline uppercase text-muted-foreground mb-2">Shared Projects</p>
+                            <div className="border-t border-border pt-4">
+                                <p className="eyebrow text-muted-foreground mb-2">Shared Projects</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {person.projects.map(p => (
                                         <Badge key={p.id} variant="secondary" className="text-[11px]">
@@ -111,7 +107,7 @@ export default async function PeoplePage() {
                             </div>
 
                             {(person.sector || person.purpose) && (
-                                <div className="mt-4 pt-4 border-t text-[12px] text-muted-foreground space-y-0.5">
+                                <div className="mt-4 space-y-0.5 border-t border-border pt-4 text-[12px] text-muted-foreground">
                                     {person.sector && <span className="block">Sector: {person.sector}</span>}
                                     {person.purpose && <span className="block">Purpose: {person.purpose}</span>}
                                 </div>
@@ -120,6 +116,6 @@ export default async function PeoplePage() {
                     ))}
                 </div>
             )}
-        </div>
+        </PageShell>
     );
 }

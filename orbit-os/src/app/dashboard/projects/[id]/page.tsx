@@ -38,7 +38,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
         .reduce((sum, m) => sum + m.amount, 0);
 
     return (
-        <div className="space-y-8 max-w-[1120px] mx-auto px-8 py-12">
+        <div className="mx-auto max-w-[1200px] animate-page-rise space-y-6 px-5 py-6 sm:px-8 sm:py-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -48,8 +48,8 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                         </Link>
                     </Button>
                     <div>
-                        <p className="text-overline uppercase text-muted-foreground mb-1">Project</p>
-                        <h1 className="font-serif text-display-md">{project.title}</h1>
+                        <p className="eyebrow text-muted-foreground mb-1">Project</p>
+                        <h1 className="font-display text-[32px] font-medium italic leading-[1.15] tracking-[-0.01em]">{project.title}</h1>
                         <div className="flex items-center gap-2 mt-2">
                             <Badge variant={project.status === 'ACTIVE' ? 'pending' : project.status === 'COMPLETED' ? 'paid' : 'archived'}>
                                 {project.status}
@@ -81,34 +81,34 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     <div className="grid gap-6 md:grid-cols-3">
                         <Card className="p-6">
                             <div className="flex items-start justify-between">
-                                <p className="text-overline uppercase text-muted-foreground">Total Budget</p>
+                                <p className="eyebrow text-muted-foreground">Total Budget</p>
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
                                     <Wallet className="h-4 w-4 text-accent" strokeWidth={1.5} />
                                 </div>
                             </div>
-                            <p className="mt-4 font-serif text-stat tabular-nums">
+                            <p className="mt-4 text-stat tabular-nums">
                                 {formatMoney(project.totalBudget ?? 0, project.currency)}
                             </p>
                         </Card>
                         <Card className="p-6">
                             <div className="flex items-start justify-between">
-                                <p className="text-overline uppercase text-muted-foreground">Hours Logged</p>
+                                <p className="eyebrow text-muted-foreground">Hours Logged</p>
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
                                     <Clock className="h-4 w-4 text-accent" strokeWidth={1.5} />
                                 </div>
                             </div>
-                            <p className="mt-4 font-serif text-stat tabular-nums">
+                            <p className="mt-4 text-stat tabular-nums">
                                 {Math.round(project.timeLogs.reduce((acc, log) => acc + log.duration, 0) / 60)}h
                             </p>
                         </Card>
                         <Card className="p-6">
                             <div className="flex items-start justify-between">
-                                <p className="text-overline uppercase text-muted-foreground">Remaining Tasks</p>
+                                <p className="eyebrow text-muted-foreground">Remaining Tasks</p>
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
                                     <Target className="h-4 w-4 text-accent" strokeWidth={1.5} />
                                 </div>
                             </div>
-                            <p className="mt-4 font-serif text-stat tabular-nums">
+                            <p className="mt-4 text-stat tabular-nums">
                                 {project.tasks.filter((t) => t.status !== 'DONE').length}
                             </p>
                         </Card>
@@ -116,7 +116,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
 
                     {project.description && (
                         <Card className="p-6">
-                            <p className="text-overline uppercase text-muted-foreground mb-3">Description</p>
+                            <p className="eyebrow mb-2 text-accent-ink">Description</p>
                             <p className="text-[15px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                                 {project.description}
                             </p>
@@ -129,7 +129,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     <div className="grid gap-6 md:grid-cols-2">
                         <Card>
                             <div className="px-6 pt-6 pb-3">
-                                <p className="text-overline uppercase text-muted-foreground mb-1">Payment Breakdown</p>
+                                <p className="eyebrow text-muted-foreground mb-1">Payment Breakdown</p>
                                 <p className="text-[13px] text-muted-foreground">Milestone status and amounts</p>
                             </div>
                             <div>
@@ -142,7 +142,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                             </p>
                                         </div>
                                         <div className="text-right flex items-center gap-3">
-                                            <span className="font-serif text-[15px] tabular-nums">
+                                            <span className="font-semibold text-[15px] tabular-nums">
                                                 {formatMoney(m.amount, project.currency)}
                                             </span>
                                             <Badge variant={m.status === 'PAID' ? 'paid' : m.status === 'PENDING' ? 'pending' : 'overdue'}>
@@ -157,19 +157,19 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             </div>
                         </Card>
                         <Card className="p-6">
-                            <p className="text-overline uppercase text-muted-foreground mb-6">Financial Summary</p>
+                            <p className="eyebrow text-muted-foreground mb-6">Financial Summary</p>
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-[13px] text-muted-foreground">Total Budget</span>
-                                    <span className="font-serif text-[15px] tabular-nums">{formatMoney(project.totalBudget ?? 0, project.currency)}</span>
+                                    <span className="font-semibold text-[15px] tabular-nums">{formatMoney(project.totalBudget ?? 0, project.currency)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[13px] text-[hsl(74_37%_29%)]">Collected</span>
-                                    <span className="font-serif text-[15px] tabular-nums text-[hsl(74_37%_29%)]">+{formatMoney(paidAmount, project.currency)}</span>
+                                    <span className="text-[13px] text-success">Collected</span>
+                                    <span className="text-[15px] font-semibold tabular-nums text-success">+{formatMoney(paidAmount, project.currency)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-[13px] text-muted-foreground">Pending</span>
-                                    <span className="font-serif text-[15px] tabular-nums text-muted-foreground">{formatMoney(pendingAmount, project.currency)}</span>
+                                    <span className="font-semibold text-[15px] tabular-nums text-muted-foreground">{formatMoney(pendingAmount, project.currency)}</span>
                                 </div>
                             </div>
                         </Card>
@@ -181,7 +181,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     <div className="grid gap-6 md:grid-cols-2">
                         <Card className="p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <p className="text-overline uppercase text-muted-foreground">Collaborators</p>
+                                <p className="eyebrow text-muted-foreground">Collaborators</p>
                                 {isOwner && <AddCollaboratorDialog projectId={project.id} />}
                             </div>
                             <div className="space-y-4">
@@ -220,7 +220,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                         </Card>
 
                         <Card className="p-6">
-                            <p className="text-overline uppercase text-muted-foreground mb-4">Documents</p>
+                            <p className="eyebrow text-muted-foreground mb-4">Documents</p>
                             <div className="space-y-2">
                                 {project.documents.map((d) => (
                                     <div key={d.id} className="flex items-center justify-between p-3 rounded-lg border hover:border-[hsl(30_36%_65%)] hover:shadow-sm transition-all duration-[120ms]">
@@ -244,7 +244,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                 {/* MEETINGS TAB */}
                 <TabsContent value="meetings" className="space-y-6">
                     <div className="flex items-center justify-between">
-                        <p className="text-overline uppercase text-muted-foreground">Scheduled Meetings</p>
+                        <p className="eyebrow text-muted-foreground">Scheduled Meetings</p>
                         <ScheduleMeetingDialog projectId={project.id} collaborators={project.collaborators} />
                     </div>
 
@@ -253,7 +253,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
                                 <Video className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                             </div>
-                            <h3 className="font-serif text-display-sm mb-2">No meetings yet</h3>
+                            <h3 className="text-display-sm mb-2">No meetings yet</h3>
                             <p className="text-[13px] text-muted-foreground max-w-[280px] mx-auto">
                                 Schedule a meeting to notify your team.
                             </p>

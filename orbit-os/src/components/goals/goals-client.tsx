@@ -61,11 +61,11 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
     const achievedGoals = goals.filter(g => g.status === 'ACHIEVED');
 
     return (
-        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
-            <div className="flex items-end justify-between">
+        <div className="mx-auto max-w-[1200px] animate-page-rise space-y-6 px-5 py-6 sm:px-8 sm:py-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <p className="text-overline uppercase text-muted-foreground mb-3">Goals</p>
-                    <h2 className="font-serif text-display-md">Stay on track</h2>
+                    <p className="eyebrow mb-2 text-accent-ink">Goals</p>
+                    <h2 className="font-display text-[32px] font-medium italic leading-[1.15] tracking-[-0.01em]">Stay on track</h2>
                 </div>
                 <Button variant="accent" onClick={() => setIsDialogOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" strokeWidth={2} /> New Goal
@@ -76,7 +76,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                 {/* Active Goals */}
                 <div>
                     <div className="flex items-center justify-between mb-4">
-                        <p className="text-overline uppercase text-muted-foreground">Active</p>
+                        <p className="eyebrow text-muted-foreground">Active</p>
                         <Badge variant="warning">{activeGoals.length}</Badge>
                     </div>
                     <div className="space-y-3">
@@ -117,7 +117,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary mx-auto mb-4">
                                     <Target className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                                 </div>
-                                <h3 className="font-serif text-display-sm mb-2">No active goals</h3>
+                                <h3 className="text-display-sm mb-2">No active goals</h3>
                                 <p className="text-[13px] text-muted-foreground">Set a goal to start tracking your progress.</p>
                             </div>
                         )}
@@ -127,7 +127,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
                 {/* Achieved Goals */}
                 <div>
                     <div className="flex items-center justify-between mb-4">
-                        <p className="text-overline uppercase text-muted-foreground">Achieved</p>
+                        <p className="eyebrow text-muted-foreground">Achieved</p>
                         <Badge variant="success">{achievedGoals.length}</Badge>
                     </div>
                     <div className="space-y-3">
@@ -171,7 +171,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="font-serif text-display-sm">New Goal</DialogTitle>
+                        <DialogTitle className="text-display-sm">New Goal</DialogTitle>
                     </DialogHeader>
                     <form action={handleCreate} className="space-y-4">
                         <div className="space-y-1.5">
@@ -198,7 +198,7 @@ export function GoalsClient({ goals }: { goals: Goal[] }) {
             <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="font-serif text-display-sm">Delete Goal</DialogTitle>
+                        <DialogTitle className="text-display-sm">Delete Goal</DialogTitle>
                         <DialogDescription>
                             Are you sure you want to delete &ldquo;{deleteTarget?.title}&rdquo;? This action cannot be undone.
                         </DialogDescription>

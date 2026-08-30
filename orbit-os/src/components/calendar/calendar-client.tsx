@@ -93,7 +93,7 @@ export function CalendarClient({ initialDate, events }: CalendarClientProps) {
     const getEventColor = (type: string) => {
         switch (type) {
             case "PROJECT": return "bg-primary/10 text-primary border-primary/20";
-            case "MILESTONE": return "bg-accent/10 text-accent border-accent/20";
+            case "MILESTONE": return "bg-accent/15 text-accent-ink border-accent/30";
             case "TASK": return "bg-secondary text-secondary-foreground border-border";
             case "EVENT": return "bg-muted text-muted-foreground border-border";
             default: return "bg-muted text-muted-foreground";

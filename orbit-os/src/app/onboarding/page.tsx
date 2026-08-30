@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useActionState } from "react";
@@ -14,124 +13,127 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, UserCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function OnboardingPage() {
     const [state, action, isPending] = useActionState(updateProfile, undefined);
 
     return (
-        <div className="flex min-h-screen bg-background items-center justify-center p-6 selection:bg-accent selection:text-white">
-            <div className="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 gap-0 border border-border/50 bg-background shadow-2xl overflow-hidden rounded-sm">
+        <div className="flex min-h-screen bg-background items-center justify-center p-6 grain-overlay">
+            {/* Ambient warmth — same as auth pages */}
+            <div
+                className="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 -translate-y-1/4"
+                style={{
+                    width: "min(90vw, 900px)",
+                    height: "min(90vw, 900px)",
+                    background: "radial-gradient(circle, hsl(31 74% 53% / 0.06) 0%, transparent 70%)",
+                    filter: "blur(40px)",
+                }}
+                aria-hidden="true"
+            />
 
-                {/* Visual Side */}
-                <div className="hidden lg:block relative bg-[#E5E0D8]">
-                    <img
-                        src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000"
-                        alt="Professional workspace"
-                        className="object-cover w-full h-full grayscale-[0.3]"
-                    />
-                    <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />
-                    <div className="absolute top-12 left-12 right-12 text-white">
-                        <p className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4 opacity-70">Step 2 — Profile Setup</p>
-                        <h2 className="text-5xl font-serif leading-tight">Set Up Your <br /> Workspace</h2>
-                    </div>
+            <div className="w-full max-w-[480px] animate-page-rise relative">
+                <div className="mb-10">
+                    <p className="eyebrow text-muted-foreground mb-5">
+                        Step 2 — Profile setup
+                    </p>
+                    <h1 className="text-display-md mb-3">
+                        Personalize <em className="italic">Orbit</em>
+                    </h1>
+                    <p className="text-[15px] text-muted-foreground leading-relaxed">
+                        Tell us a bit about yourself so we can set up your workspace.
+                    </p>
                 </div>
 
-                {/* Form Side */}
-                <div className="p-8 sm:p-16 flex flex-col justify-center">
-                    <div className="mb-12">
-                        <UserCircle className="h-10 w-10 text-accent mb-6" />
-                        <h1 className="text-4xl font-serif mb-3 italic">Personalize Orbit</h1>
-                        <p className="text-muted-foreground leading-relaxed">
-                            Tell us a bit about yourself so we can set up your workspace.
-                        </p>
-                    </div>
-
-                    <form action={action} className="space-y-8">
-                        <div className="grid gap-6">
-                            {/* Phone */}
-                            <div className="space-y-2">
-                                <Label htmlFor="phone" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Phone Number</Label>
-                                <Input
-                                    id="phone"
-                                    name="phone"
-                                    type="tel"
-                                    placeholder="+1 (555) 000-0000"
-                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg"
-                                />
-                                {state?.errors?.phone && (
-                                    <p className="text-xs text-destructive">{state.errors.phone}</p>
-                                )}
-                            </div>
-
-                            {/* Gender & Sector Row */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2 text-left">
-                                    <Label htmlFor="gender" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Gender</Label>
-                                    <Select name="gender">
-                                        <SelectTrigger id="gender" className="border-0 border-b border-border rounded-none px-0 focus:ring-0 shadow-none bg-transparent">
-                                            <SelectValue placeholder="Select" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Male">Male</SelectItem>
-                                            <SelectItem value="Female">Female</SelectItem>
-                                            <SelectItem value="Other">Other</SelectItem>
-                                            <SelectItem value="Prefer not to say">N/A</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2 text-left">
-                                    <Label htmlFor="sector" className="text-[11px] tracking-widest uppercase font-bold opacity-50">Industry</Label>
-                                    <Select name="sector">
-                                        <SelectTrigger id="sector" className="border-0 border-b border-border rounded-none px-0 focus:ring-0 shadow-none bg-transparent">
-                                            <SelectValue placeholder="Focus" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Technology">Technology</SelectItem>
-                                            <SelectItem value="Finance">Finance / VC</SelectItem>
-                                            <SelectItem value="Creative">Design / Creative</SelectItem>
-                                            <SelectItem value="Education">Education</SelectItem>
-                                            <SelectItem value="Consulting">Consulting</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            {/* Purpose */}
-                            <div className="space-y-2">
-                                <Label htmlFor="purpose" className="text-[11px] tracking-widest uppercase font-bold opacity-50">How will you use Orbit?</Label>
-                                <Input
-                                    id="purpose"
-                                    name="purpose"
-                                    placeholder="e.g. Managing client projects"
-                                    className="border-0 border-b border-border rounded-none px-0 focus-visible:ring-0 focus-visible:border-accent transition-all bg-transparent text-lg"
-                                />
-                                {state?.errors?.purpose && (
-                                    <p className="text-xs text-destructive">{state.errors.purpose}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {state?.message && (
-                            <p className="text-sm text-destructive text-center">{state.message}</p>
+                <form action={action} className="space-y-6">
+                    {/* Phone */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="phone" className="text-[13px] font-medium">Phone Number</Label>
+                        <Input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            placeholder="+1 (555) 000-0000"
+                            className="h-[42px] rounded-xl text-[14px] bg-card/60 backdrop-blur-sm border-border/50"
+                        />
+                        {state?.errors?.phone && (
+                            <p className="text-xs text-destructive">{state.errors.phone}</p>
                         )}
+                    </div>
 
-                        <div className="flex flex-col gap-4 pt-4">
-                            <Button type="submit" className="w-full h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-[13px] tracking-widest uppercase font-bold" disabled={isPending}>
-                                {isPending ? "Saving..." : "Complete Setup"}
-                            </Button>
+                    {/* Gender & Sector */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="gender" className="text-[13px] font-medium">Gender</Label>
+                            <Select name="gender">
+                                <SelectTrigger id="gender" className="h-[42px] rounded-xl bg-card/60 backdrop-blur-sm border-border/50">
+                                    <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Male">Male</SelectItem>
+                                    <SelectItem value="Female">Female</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                    <SelectItem value="Prefer not to say">N/A</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                    </form>
 
-                    <form action={logout} className="mt-2">
-                        <Button variant="link" className="w-full text-[11px] tracking-widest uppercase font-bold opacity-40 hover:opacity-100 transition-opacity">
-                            Sign out
+                        <div className="space-y-1.5">
+                            <Label htmlFor="sector" className="text-[13px] font-medium">Industry</Label>
+                            <Select name="sector">
+                                <SelectTrigger id="sector" className="h-[42px] rounded-xl bg-card/60 backdrop-blur-sm border-border/50">
+                                    <SelectValue placeholder="Focus" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Technology">Technology</SelectItem>
+                                    <SelectItem value="Finance">Finance / VC</SelectItem>
+                                    <SelectItem value="Creative">Design / Creative</SelectItem>
+                                    <SelectItem value="Education">Education</SelectItem>
+                                    <SelectItem value="Consulting">Consulting</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Purpose */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="purpose" className="text-[13px] font-medium">How will you use Orbit?</Label>
+                        <Input
+                            id="purpose"
+                            name="purpose"
+                            placeholder="e.g. Managing client projects"
+                            className="h-[42px] rounded-xl text-[14px] bg-card/60 backdrop-blur-sm border-border/50"
+                        />
+                        {state?.errors?.purpose && (
+                            <p className="text-xs text-destructive">{state.errors.purpose}</p>
+                        )}
+                    </div>
+
+                    {state?.message && (
+                        <p className="text-[13px] text-destructive text-center" role="alert">{state.message}</p>
+                    )}
+
+                    <div className="pt-2">
+                        <Button
+                            type="submit"
+                            className="w-full h-12 rounded-full text-[13px] font-semibold"
+                            disabled={isPending}
+                        >
+                            {isPending ? "Saving..." : "Complete Setup"}
+                            {!isPending && <ArrowRight className="ml-2 h-4 w-4" strokeWidth={2} />}
                         </Button>
-                    </form>
-                </div>
+                    </div>
+                </form>
+
+                <form action={logout} className="mt-4">
+                    <button
+                        type="submit"
+                        className="w-full text-center text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-[100ms] py-2"
+                    >
+                        Sign out
+                    </button>
+                </form>
             </div>
         </div>
     );

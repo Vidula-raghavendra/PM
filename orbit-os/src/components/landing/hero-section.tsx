@@ -2,109 +2,88 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Wallet, Clock3, Users } from "lucide-react";
-import { DuskCanvas } from "./dusk-canvas";
+import { ArrowRight } from "lucide-react";
+import { HeroBackdrop } from "./hero-backdrop";
+import { ProductShot } from "./product-shot";
 
 /**
- * Asymmetric hero: full-bleed environmental light, proof chips floating at the
- * upper left, and the display headline anchored bottom-left over the image.
- * The headline is deliberately oversized — scale contrast is what separates an
- * editorial layout from a template.
+ * Drop a landscape photograph at this path (under /public) and the hero
+ * renders it instead of the coded field. One constant, one file — nothing
+ * else about the layout changes.
  */
-
-const chips = [
-    { icon: Wallet, value: "Milestone", label: "= invoice" },
-    { icon: Clock3, value: "One place", label: "for every deadline" },
-    { icon: Users, value: "Revenue splits", label: "built in" },
-];
+const HERO_PHOTO: string | undefined = "/hero-field-wide.jpg";
 
 export function HeroSection() {
     const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
-        const timer = setTimeout(() => setLoaded(true), 60);
-        return () => clearTimeout(timer);
+        const id = requestAnimationFrame(() => setLoaded(true));
+        return () => cancelAnimationFrame(id);
     }, []);
 
-    // Staged entrance — each element trails the last so the eye is led from
-    // the headline down to the CTA rather than everything arriving at once.
-    const rise = (delay: number, distance = 20) => ({
+    /**
+     * One authored entrance: the type rises out of the landscape and
+     * resolves from blur, the way a subject settles into focus. Ordered so
+     * the eye lands on the headline first and the screenshot last.
+     */
+    const rise = (delay: number, distance = 24) => ({
         opacity: loaded ? 1 : 0,
-        transform: loaded ? "translateY(0)" : `translateY(${distance}px)`,
-        transition: `opacity 0.9s ease ${delay}ms, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+        transform: loaded ? "none" : `translateY(${distance}px)`,
+        filter: loaded ? "blur(0px)" : "blur(10px)",
+        transition: `opacity 1.1s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 1.1s cubic-bezier(0.16,1,0.3,1) ${delay}ms, filter 1.1s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
     });
 
     return (
-        <section className="relative min-h-[92vh] flex flex-col justify-end overflow-hidden">
-            <DuskCanvas />
+        <section className="isolate-layer pt-28 sm:pt-32">
+            <HeroBackdrop photo={HERO_PHOTO} />
 
-            {/* Proof chips — pinned to the upper left, mirroring the reference's
-                floating stat pills over the photograph. */}
-            <div className="absolute top-24 left-0 right-0 sm:top-28">
-                <div className="max-w-[1240px] mx-auto px-6 sm:px-10">
-                    <div className="flex flex-col items-start gap-2.5 sm:gap-3">
-                        {chips.map((chip, i) => (
-                            <div
-                                key={chip.value}
-                                className="flex items-center gap-3 rounded-full border border-white/15 bg-black/25 px-4 py-2 backdrop-blur-md"
-                                style={rise(500 + i * 110, 12)}
-                            >
-                                <chip.icon
-                                    className="h-3.5 w-3.5 text-amber-200"
-                                    strokeWidth={1.5}
-                                />
-                                <span className="text-[13px] font-medium text-white">
-                                    {chip.value}
-                                </span>
-                                <span className="text-[12px] text-white/55">{chip.label}</span>
-                            </div>
-                        ))}
-                    </div>
+            <div className="layer-content mx-auto w-full max-w-[1120px] px-5 sm:px-8">
+                <h1
+                    className="mx-auto max-w-[16ch] text-center font-display text-[clamp(3rem,8.4vw,5.75rem)] font-medium italic leading-[1.06] tracking-[-0.015em] text-white [text-shadow:0_2px_40px_rgba(20,26,12,0.55)]"
+                    style={rise(60, 28)}
+                >
+                    Get paid for every milestone
+                </h1>
+
+                <p
+                    className="mx-auto mt-5 max-w-[52ch] text-center text-[17px] leading-[1.6] text-white/90 [text-shadow:0_1px_18px_rgba(20,26,12,0.5)]"
+                    style={rise(180, 20)}
+                >
+                    Milestones, payments, time tracking and revenue splits — one
+                    workspace for people who bill by the deliverable.
+                </p>
+
+                <div
+                    className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row"
+                    style={rise(300, 16)}
+                >
+                    <Link
+                        href="/register"
+                        className="group/cta inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 text-[14px] font-semibold text-foreground shadow-[0_2px_20px_rgba(20,26,12,0.28)] transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(20,26,12,0.36)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto"
+                    >
+                        Start free
+                        <ArrowRight
+                            className="h-4 w-4 transition-transform duration-300 ease-out group-hover/cta:translate-x-1"
+                            strokeWidth={2}
+                        />
+                    </Link>
+                    <Link
+                        href="#features"
+                        className="inline-flex h-12 w-full items-center justify-center rounded-full border border-white/50 bg-black/25 px-8 text-[14px] font-semibold text-white backdrop-blur-md transition-[transform,background-color,border-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-white/80 hover:bg-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto"
+                    >
+                        See how it works
+                    </Link>
                 </div>
             </div>
 
-            {/* Headline block — bottom-left anchored, not centered */}
-            <div className="relative max-w-[1240px] mx-auto w-full px-6 sm:px-10 pb-16 sm:pb-24">
-                <div className="max-w-[900px]">
-                    <p
-                        className="text-overline uppercase text-amber-200/80 mb-6"
-                        style={rise(120, 10)}
-                    >
-                        Free during beta
-                    </p>
-
-                    <h1
-                        className="font-serif text-white leading-[0.86] tracking-[-0.035em] text-[clamp(3.25rem,10vw,8.5rem)]"
-                        style={rise(220, 28)}
-                    >
-                        Get paid for
-                        <br />
-                        <em className="italic">every</em> milestone
-                    </h1>
-
-                    <div className="mt-9 flex flex-col sm:flex-row sm:items-end gap-8 sm:gap-14">
-                        <p
-                            className="text-[15px] sm:text-base text-white/70 leading-relaxed max-w-[420px]"
-                            style={rise(400, 18)}
-                        >
-                            Milestones, payments, time tracking and revenue splits — one
-                            workspace for people who bill by the deliverable.
-                        </p>
-
-                        <div style={rise(520, 14)}>
-                            <Link
-                                href="/register"
-                                className="group/cta inline-flex h-12 items-center gap-2.5 rounded-full bg-white px-7 text-[13px] font-semibold text-espresso transition-transform duration-[160ms] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                                style={{ color: "#2B1A0E" }}
-                            >
-                                Start free
-                                <ArrowRight
-                                    className="h-4 w-4 transition-transform duration-[160ms] group-hover/cta:translate-x-0.5"
-                                    strokeWidth={2}
-                                />
-                            </Link>
-                        </div>
-                    </div>
+            {/* The screenshot rises into the lower third of the landscape and
+                bleeds across the section seam into the page below. */}
+            <div
+                className="layer-content mx-auto mt-[13vw] w-full max-w-[1120px] px-5 sm:mt-[14vw] sm:px-8"
+                style={{ ...rise(460, 40), marginBottom: "var(--hero-overhang)" }}
+            >
+                <div className="float-soft">
+                    <ProductShot />
                 </div>
             </div>
         </section>

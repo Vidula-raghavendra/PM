@@ -1,13 +1,14 @@
-
 "use client";
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { signup } from "@/app/actions/auth";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OrbitMark } from "@/components/landing/orbit-mark";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -15,7 +16,7 @@ function SubmitButton() {
     return (
         <Button
             type="submit"
-            className="w-full h-[38px] rounded-[10px] text-[13px] font-medium"
+            className="h-11 w-full rounded-full text-[13px] font-semibold"
             disabled={pending}
         >
             {pending ? "Creating account..." : "Create account"}
@@ -27,13 +28,35 @@ export default function RegisterPage() {
     const [state, action] = useActionState(signup, undefined);
 
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-6">
-            <div className="w-full max-w-[360px]">
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-5 sm:p-6">
+            {/* Same landscape as the marketing hero, so signing in feels
+                like the same place rather than a different product. */}
+            <Image
+                src="/hero-field-wide.jpg"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                unoptimized
+                className="object-cover object-center"
+                aria-hidden="true"
+            />
+            <div
+                className="absolute inset-0"
+                style={{ background: "rgba(26,30,16,0.42)" }}
+                aria-hidden="true"
+            />
+            <div className="relative z-10 w-full max-w-[420px] animate-page-rise">
+                <div className="rounded-xl border border-white/15 bg-white/95 p-7 shadow-xl backdrop-blur-xl sm:p-9">
                 <div className="mb-8">
-                    <Link href="/" className="font-serif text-lg tracking-tight inline-block mb-8 text-muted-foreground hover:text-foreground transition-colors duration-[100ms]">
+                    <Link
+                        href="/"
+                        className="mb-8 inline-flex items-center gap-2 text-[17px] font-bold tracking-[-0.02em] text-foreground transition-opacity duration-150 hover:opacity-80"
+                    >
+                        <OrbitMark className="h-6 w-6" />
                         Orbit
                     </Link>
-                    <h1 className="font-serif text-display-sm mb-1.5">Create your account</h1>
+                    <h1 className="mb-1.5 font-display text-[30px] font-medium italic leading-[1.15] tracking-[-0.01em]">Create your account</h1>
                     <p className="text-[13px] text-muted-foreground">
                         Start managing projects in under a minute.
                     </p>
@@ -49,7 +72,6 @@ export default function RegisterPage() {
                             required
                             autoComplete="name"
                             placeholder="Your name"
-                            className="h-[38px] rounded-[10px] text-[14px] bg-card"
                         />
                         {state?.errors?.name && (
                             <p className="text-xs text-destructive" role="alert">{state.errors.name}</p>
@@ -65,7 +87,6 @@ export default function RegisterPage() {
                             required
                             autoComplete="email"
                             placeholder="you@example.com"
-                            className="h-[38px] rounded-[10px] text-[14px] bg-card"
                         />
                         {state?.errors?.email && (
                             <p className="text-xs text-destructive" role="alert">{state.errors.email}</p>
@@ -81,9 +102,11 @@ export default function RegisterPage() {
                             required
                             autoComplete="new-password"
                             placeholder="••••••••"
-                            className="h-[38px] rounded-[10px] text-[14px] bg-card"
                         />
-                        <p className="text-[12px] text-muted-foreground">8+ characters, one uppercase, one number.</p>
+                        {/* Mirrors the zod rules in actions/auth.ts — letter,
+                            number, special char. The old copy said "uppercase",
+                            which is not what the validator checks. */}
+                        <p className="text-[12px] text-muted-foreground">8+ characters, with a number and a special character.</p>
                         {state?.errors?.password && (
                             <div className="text-xs text-destructive space-y-1" role="alert">
                                 <ul className="list-disc pl-4 space-y-0.5">
@@ -106,10 +129,11 @@ export default function RegisterPage() {
 
                 <p className="text-center text-[13px] text-muted-foreground mt-6">
                     Have an account?{" "}
-                    <Link href="/login" className="text-accent hover:underline underline-offset-4">
+                    <Link href="/login" className="font-semibold text-accent-ink underline-offset-4 hover:underline">
                         Sign in
                     </Link>
                 </p>
+                </div>
             </div>
         </div>
     );

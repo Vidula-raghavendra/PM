@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 
 export default function NewProjectPage() {
     return (
-        <div className="space-y-8 max-w-4xl mx-auto px-8 py-12">
+        <div className="space-y-8 max-w-4xl mx-auto px-8 py-12 animate-page-rise">
             <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" asChild>
                     <Link href="/dashboard/projects" aria-label="Back to projects">
@@ -13,8 +13,8 @@ export default function NewProjectPage() {
                     </Link>
                 </Button>
                 <div>
-                    <p className="text-overline uppercase text-muted-foreground mb-1">Projects</p>
-                    <h1 className="font-serif text-display-sm">New Project</h1>
+                    <p className="eyebrow text-muted-foreground mb-1">Projects</p>
+                    <h1 className="text-display-sm">New Project</h1>
                 </div>
             </div>
 

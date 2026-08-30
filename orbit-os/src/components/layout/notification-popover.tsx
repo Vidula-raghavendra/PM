@@ -73,7 +73,7 @@ export function NotificationPopover() {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <button className="relative hover:text-accent transition-colors">
+                <button className="relative hover:text-accent-ink transition-colors">
                     <Bell className="h-4 w-4" />
                     {unreadCount > 0 && (
                         <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center font-bold">

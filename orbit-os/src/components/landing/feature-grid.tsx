@@ -1,7 +1,4 @@
-"use client";
-
-import { useRef, useState, useCallback } from "react";
-import { ScrollReveal } from "./scroll-reveal";
+import { Reveal } from "./reveal";
 
 const features = [
     {
@@ -30,57 +27,25 @@ const features = [
     },
 ];
 
-function FeatureCard({ title, desc, index }: { title: string; desc: string; index: number }) {
-    const cardRef = useRef<HTMLDivElement>(null);
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-    const [isHovered, setIsHovered] = useState(false);
-
-    const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        const rect = cardRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        setMousePos({
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
-        });
-    }, []);
-
-    return (
-        <ScrollReveal delay={index * 70}>
-            <div
-                ref={cardRef}
-                className="relative group p-6 rounded-lg border border-transparent transition-all duration-[160ms] ease-out hover:border-border hover:shadow-sm hover:-translate-y-px cursor-default bg-card"
-                onMouseMove={handleMouseMove}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                {/* Mouse-following warm glow */}
-                <div
-                    className="pointer-events-none absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-[240ms]"
-                    style={{
-                        background: isHovered
-                            ? `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, hsl(31 74% 53% / 0.06), transparent 70%)`
-                            : "none",
-                    }}
-                />
-
-                <div className="relative">
-                    <h3 className="text-[15px] font-semibold tracking-tight mb-1.5 group-hover:text-accent transition-colors duration-[100ms]">
-                        {title}
-                    </h3>
-                    <p className="text-[13px] text-muted-foreground leading-relaxed">
-                        {desc}
-                    </p>
-                </div>
-            </div>
-        </ScrollReveal>
-    );
-}
-
+/**
+ * Six capabilities as an open editorial grid. No cards and no decorative
+ * icons: a hairline rule and the typography carry the structure, which is
+ * what keeps this from reading as a generated feature-tile wall.
+ */
 export function FeatureGrid() {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-x-14 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f, i) => (
-                <FeatureCard key={f.title} title={f.title} desc={f.desc} index={i} />
+                <Reveal key={f.title} delay={i * 70}>
+                    <div className="border-t border-border py-9">
+                        <h3 className="text-[17px] font-semibold tracking-[-0.015em]">
+                            {f.title}
+                        </h3>
+                        <p className="mt-2.5 max-w-[34ch] text-[14px] leading-[1.65] text-muted-foreground">
+                            {f.desc}
+                        </p>
+                    </div>
+                </Reveal>
             ))}
         </div>
     );

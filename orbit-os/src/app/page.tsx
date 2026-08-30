@@ -1,13 +1,16 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { LandingNav } from "@/components/landing/landing-nav";
+import { PageBackdrop } from "@/components/landing/page-backdrop";
 import { HeroSection } from "@/components/landing/hero-section";
 import { StatementSection } from "@/components/landing/statement-section";
 import { MilestoneVisual } from "@/components/landing/milestone-visual";
 import { SplitVisual } from "@/components/landing/split-visual";
 import { SplitFeature } from "@/components/landing/split-feature";
 import { FeatureGrid } from "@/components/landing/feature-grid";
-import { ScrollReveal } from "@/components/landing/scroll-reveal";
+import { PricingSection } from "@/components/landing/pricing-section";
+import { FaqSection } from "@/components/landing/faq-section";
+import { FinalCta } from "@/components/landing/final-cta";
+import { SiteFooter } from "@/components/landing/site-footer";
+import { Reveal } from "@/components/landing/reveal";
 
 const steps = [
     { title: "Create a project", desc: "Client, budget, milestones, deadlines — all in one form." },
@@ -16,28 +19,26 @@ const steps = [
     { title: "Stay in control", desc: "One dashboard for revenue, progress, and what's next." },
 ];
 
-const planFeatures = [
-    "Unlimited projects & milestones",
-    "Payment tracking & revenue splits",
-    "Time tracking & calendar",
-    "Team collaboration",
-    "All future features included",
-];
-
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-background text-foreground font-sans antialiased">
+        <div className="relative min-h-screen font-sans text-foreground antialiased">
+            <PageBackdrop photo="/hero-field-wide.jpg" />
             <LandingNav />
 
             <main>
                 <HeroSection />
 
-                {/* Alternating splits — the rhythm that carries you down the page */}
-                <section id="features" className="py-24 sm:py-32 px-6 sm:px-10">
-                    <div className="max-w-[1240px] mx-auto space-y-24 sm:space-y-36">
+                {/* Alternating splits */}
+                {/* pt clears the hero screenshot's overhang above */}
+                <section
+                    id="features"
+                    className="bg-background px-5 pb-24 sm:px-8 sm:pb-32"
+                    style={{ paddingTop: "var(--hero-clearance)" }}
+                >
+                    <div className="mx-auto max-w-[1120px] space-y-24 sm:space-y-32">
                         <SplitFeature
                             overline="Payments"
-                            title={<>A milestone is <em className="italic">an invoice</em></>}
+                            title={<>A milestone is <em className="not-italic text-accent-ink">an invoice</em></>}
                             body="Set the phase, the amount and the date once. Mark it paid when the money lands, and revenue updates everywhere — dashboard, project and finance view."
                             visual={<MilestoneVisual />}
                         />
@@ -45,7 +46,7 @@ export default function LandingPage() {
                         <SplitFeature
                             reverse
                             overline="Collaboration"
-                            title={<>Split revenue <em className="italic">fairly</em></>}
+                            title={<>Split revenue <em className="not-italic text-accent-ink">fairly</em></>}
                             body="Invite collaborators by email and give each one a percentage. Orbit works out who is owed what on every project, so a shared job never turns into a spreadsheet argument."
                             visual={<SplitVisual />}
                         />
@@ -54,138 +55,62 @@ export default function LandingPage() {
 
                 <StatementSection />
 
-                <section className="py-24 sm:py-32 px-6 sm:px-10">
-                    <div className="max-w-[1240px] mx-auto">
-                        <ScrollReveal>
-                            <div className="max-w-[520px] mb-14 sm:mb-20">
-                                <p className="text-overline uppercase text-muted-foreground mb-5">
-                                    Everything else
-                                </p>
-                                <h2 className="font-serif text-display-md sm:text-display-lg leading-[1.02] tracking-[-0.02em]">
-                                    Built for the whole job
-                                </h2>
-                            </div>
-                        </ScrollReveal>
+                <section className="bg-background px-5 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-32">
+                    <div className="mx-auto max-w-[1120px]">
+                        <Reveal>
+                            <h2 className="mx-auto mb-16 max-w-[20ch] text-center font-display text-[clamp(2.25rem,5vw,3.5rem)] font-medium italic leading-[1.1] tracking-[-0.01em] sm:mb-20">
+                                Built for the whole job
+                            </h2>
+                        </Reveal>
 
                         <FeatureGrid />
                     </div>
                 </section>
 
-                {/* Process — sticky heading against a scrolling list */}
-                <section className="py-24 sm:py-32 px-6 sm:px-10 bg-secondary/50">
-                    <div className="max-w-[1240px] mx-auto grid lg:grid-cols-[0.85fr_1fr] gap-14 lg:gap-24">
-                        <ScrollReveal>
+                {/* Process — sticky heading against a scrolling list of cards */}
+                <section className="bg-background px-5 py-24 sm:px-8 sm:py-32">
+                    <div className="mx-auto grid max-w-[1120px] gap-12 lg:grid-cols-[0.8fr_1fr] lg:gap-20">
+                        <Reveal>
                             <div className="lg:sticky lg:top-32">
-                                <p className="text-overline uppercase text-muted-foreground mb-5">
-                                    Process
-                                </p>
-                                <h2 className="font-serif text-display-md sm:text-display-lg leading-[1.02] tracking-[-0.02em]">
+                                <p className="eyebrow mb-5 text-accent-ink">Process</p>
+                                <h2 className="font-display text-[clamp(2.25rem,5vw,3.5rem)] font-medium italic leading-[1.1] tracking-[-0.01em]">
                                     Four steps,
                                     <br />
                                     then it runs itself
                                 </h2>
                             </div>
-                        </ScrollReveal>
+                        </Reveal>
 
-                        <div>
+                        <div className="space-y-3">
                             {steps.map((item, i) => (
-                                <ScrollReveal key={item.title} delay={i * 90}>
-                                    <div className="flex gap-7 py-7 border-b border-border/60 last:border-0 group">
-                                        <span className="font-serif text-[26px] tabular-nums text-muted-foreground/50 shrink-0 leading-none pt-0.5 transition-colors duration-[160ms] group-hover:text-accent">
+                                <Reveal key={item.title} delay={i * 90} direction="right">
+                                    <div className="surface-card hover-lift group flex gap-5 p-5 sm:p-6">
+                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--background-alt))] text-[13px] font-bold tabular-nums text-accent-ink ring-1 ring-border transition-colors duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:ring-accent">
                                             {String(i + 1).padStart(2, "0")}
                                         </span>
-                                        <div>
-                                            <h3 className="text-[16px] font-semibold tracking-tight mb-1.5">
+                                        <div className="min-w-0">
+                                            <h3 className="mb-1.5 text-[16px] font-semibold tracking-[-0.01em]">
                                                 {item.title}
                                             </h3>
-                                            <p className="text-[14px] text-muted-foreground leading-relaxed">
+                                            <p className="text-[14px] leading-[1.6] text-muted-foreground">
                                                 {item.desc}
                                             </p>
                                         </div>
                                     </div>
-                                </ScrollReveal>
+                                </Reveal>
                             ))}
                         </div>
                     </div>
                 </section>
 
-                <section id="pricing" className="py-24 sm:py-32 px-6 sm:px-10">
-                    <div className="max-w-[520px] mx-auto text-center">
-                        <ScrollReveal>
-                            <p className="text-overline uppercase text-muted-foreground mb-5">
-                                Pricing
-                            </p>
-                            <h2 className="font-serif text-display-md sm:text-display-lg mb-4 leading-[1.02] tracking-[-0.02em]">
-                                Free while in beta
-                            </h2>
-                            <p className="text-muted-foreground text-[15px] leading-relaxed mb-12">
-                                Early users keep lifetime access to everything we ship.
-                            </p>
-                        </ScrollReveal>
+                <PricingSection />
 
-                        <ScrollReveal delay={80}>
-                            <div className="relative rounded-xl border border-border bg-card p-8 sm:p-10 text-left">
-                                <div
-                                    className="pointer-events-none absolute -inset-6 -z-10"
-                                    style={{
-                                        background:
-                                            "radial-gradient(55% 50% at 50% 40%, hsl(31 74% 53% / 0.14) 0%, transparent 70%)",
-                                        filter: "blur(24px)",
-                                    }}
-                                    aria-hidden="true"
-                                />
+                <FaqSection />
 
-                                <div className="text-center mb-8">
-                                    <p className="font-serif text-[52px] leading-none tabular-nums">
-                                        {"₹"}0
-                                    </p>
-                                    <p className="text-overline uppercase text-accent mt-3">
-                                        Forever — no catch
-                                    </p>
-                                </div>
-
-                                <div className="space-y-3 mb-9 text-[14px] text-muted-foreground">
-                                    {planFeatures.map((item) => (
-                                        <div key={item} className="flex items-center gap-3">
-                                            <div className="h-1 w-1 rounded-full bg-accent shrink-0" />
-                                            <span>{item}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <Link
-                                    href="/register"
-                                    className="group/btn flex h-12 w-full items-center justify-center gap-2 rounded-full bg-accent text-accent-foreground text-[13px] font-semibold transition-transform duration-[160ms] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                >
-                                    Get started
-                                    <ArrowRight
-                                        className="h-4 w-4 transition-transform duration-[160ms] group-hover/btn:translate-x-0.5"
-                                        strokeWidth={2}
-                                    />
-                                </Link>
-                            </div>
-                        </ScrollReveal>
-                    </div>
-                </section>
+                <FinalCta />
             </main>
 
-            <footer className="border-t border-border px-6 sm:px-10 py-10">
-                <div className="max-w-[1240px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-[12px] text-muted-foreground">
-                    <span className="font-serif text-[15px] text-foreground">Orbit</span>
-                    <div className="flex gap-7">
-                        <Link href="#features" className="hover:text-foreground transition-colors duration-[100ms]">
-                            Features
-                        </Link>
-                        <Link href="#pricing" className="hover:text-foreground transition-colors duration-[100ms]">
-                            Pricing
-                        </Link>
-                        <Link href="/login" className="hover:text-foreground transition-colors duration-[100ms]">
-                            Sign in
-                        </Link>
-                    </div>
-                    <span>&copy; {new Date().getFullYear()} Orbit</span>
-                </div>
-            </footer>
+            <SiteFooter />
         </div>
     );
 }

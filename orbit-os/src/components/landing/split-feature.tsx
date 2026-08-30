@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ScrollReveal } from "./scroll-reveal";
+import { Reveal } from "./reveal";
 
 /**
  * Alternating image-and-copy block. The reference repeats this pattern with
@@ -20,24 +20,22 @@ export function SplitFeature({
     reverse?: boolean;
 }) {
     return (
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <ScrollReveal className={reverse ? "lg:order-2" : undefined}>
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            <Reveal direction={reverse ? "right" : "left"} className={reverse ? "lg:order-2" : undefined}>
                 <div className="max-w-[440px]">
-                    <p className="text-overline uppercase text-muted-foreground mb-5">
-                        {overline}
-                    </p>
-                    <h2 className="font-serif text-display-md sm:text-display-lg leading-[1.02] tracking-[-0.02em] mb-6">
+                    <p className="eyebrow mb-5 text-accent-ink">{overline}</p>
+                    <h2 className="mb-6 font-display text-[clamp(2rem,4vw,2.875rem)] font-medium italic leading-[1.12] tracking-[-0.01em]">
                         {title}
                     </h2>
-                    <p className="text-[15px] text-muted-foreground leading-relaxed">
+                    <p className="text-[16px] leading-[1.6] text-muted-foreground">
                         {body}
                     </p>
                 </div>
-            </ScrollReveal>
+            </Reveal>
 
-            <ScrollReveal delay={120} className={reverse ? "lg:order-1" : undefined}>
+            <Reveal delay={140} scale direction={reverse ? "left" : "right"} className={reverse ? "lg:order-1" : undefined}>
                 {visual}
-            </ScrollReveal>
+            </Reveal>
         </div>
     );
 }

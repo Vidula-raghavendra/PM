@@ -15,10 +15,10 @@ export default async function CalendarPage({
     const events = await getCalendarEvents(validatedDate);
 
     return (
-        <div className="space-y-16 max-w-[1120px] mx-auto px-8 py-12">
+        <div className="mx-auto max-w-[1200px] animate-page-rise space-y-6 px-5 py-6 sm:px-8 sm:py-8">
             <div>
-                <p className="text-overline uppercase text-muted-foreground mb-3">Schedule</p>
-                <h2 className="font-serif text-display-md">Calendar</h2>
+                <p className="eyebrow mb-2 text-accent-ink">Schedule</p>
+                <h2 className="font-display text-[32px] font-medium italic leading-[1.15] tracking-[-0.01em]">Calendar</h2>
             </div>
 
             <CalendarClient initialDate={validatedDate} events={events} />

@@ -4,7 +4,7 @@ import { createSupabaseClient } from "@/lib/supabaseClient";
 
 export async function proxy(request: NextRequest) {
     const protectedRoutes = ["/dashboard"];
-    const publicRoutes = ["/login", "/register", "/"];
+    const publicRoutes = ["/login", "/register", "/signup", "/sign-up", "/sign-in", "/"];
 
     const path = request.nextUrl.pathname;
     const isProtectedRoute = protectedRoutes.some((route) =>
