@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Instrument_Sans } from "next/font/google";
+import { Inter, Playfair_Display, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -21,14 +21,15 @@ const playfair = Playfair_Display({
   weight: ["500", "600", "700"],
 });
 
-// Instrument Sans carries the hero tagline: a geometric grotesque with
-// tighter apertures than Inter, so it reads as a distinct voice at display
-// size while staying in the sans family the product already uses.
-const instrument = Instrument_Sans({
+// Instrument Serif carries the hero tagline. It ships a single 400 weight
+// by design — the face gets its presence from size and contrast, not from
+// bolding, so the hero sets it large and never tries to embolden it.
+const instrument = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-tagline",
   display: "swap",
-  weight: ["500", "600", "700"],
+  style: ["italic"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {

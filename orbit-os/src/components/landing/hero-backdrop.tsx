@@ -69,7 +69,7 @@ export function HeroBackdrop({ photo }: { photo?: string }) {
                 className="absolute inset-x-0 top-0 h-[54%]"
                 style={{
                     background:
-                        "radial-gradient(62% 52% at 50% 28%, rgba(16,22,34,0.34) 0%, rgba(16,22,34,0.16) 56%, transparent 80%)",
+                        "radial-gradient(68% 56% at 50% 26%, rgba(16,22,34,0.42) 0%, rgba(16,22,34,0.20) 56%, transparent 82%)",
                 }}
             />
 

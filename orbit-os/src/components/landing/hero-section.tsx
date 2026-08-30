@@ -34,15 +34,17 @@ export function HeroSection() {
     });
 
     return (
-        <section className="isolate-layer pt-28 sm:pt-32">
+        <section className="isolate-layer pt-20 sm:pt-32">
             <HeroBackdrop photo={HERO_PHOTO} />
 
             <div className="layer-content mx-auto w-full max-w-[1120px] px-5 sm:px-8">
                 <h1
-                    className="mx-auto max-w-[15ch] text-center font-tagline text-[clamp(2.75rem,7.8vw,5.25rem)] font-semibold leading-[1.04] tracking-[-0.035em] text-white [text-shadow:0_2px_40px_rgba(20,26,12,0.55)]"
+                    className="mx-auto max-w-[18ch] text-center font-tagline text-[clamp(2.25rem,7.4vw,5.25rem)] font-normal italic leading-[1.08] tracking-[-0.01em] text-white [text-shadow:0_2px_40px_rgba(20,26,12,0.55)]"
                     style={rise(60, 28)}
                 >
-                    Get paid for every milestone
+                    Track every milestone,
+                    <br />
+                    <span className="text-white/75">get paid for it</span>
                 </h1>
 
                 <p
