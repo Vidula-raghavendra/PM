@@ -39,7 +39,7 @@ export function HeroSection() {
 
             <div className="layer-content mx-auto w-full max-w-[1120px] px-5 sm:px-8">
                 <h1
-                    className="mx-auto max-w-[18ch] text-center font-tagline text-[clamp(2.25rem,7.4vw,5.25rem)] font-normal italic leading-[1.08] tracking-[-0.01em] text-white [text-shadow:0_2px_40px_rgba(20,26,12,0.55)]"
+                    className="mx-auto max-w-[18ch] text-center font-tagline text-[clamp(2.25rem,7.4vw,5.25rem)] font-normal leading-[1.08] tracking-[-0.01em] text-white [text-shadow:0_2px_40px_rgba(20,26,12,0.55)]"
                     style={rise(60, 28)}
                 >
                     Track every milestone,
