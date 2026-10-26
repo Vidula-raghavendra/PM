@@ -1,0 +1,12 @@
+# Local tooling and AI-assistant config
+.claude/
+.gstack/
+.mcp.json
+.github/agents/
+.github/hooks/
+.github/skills/
+orbit-os/.impeccable/
+
+# OS
+.DS_Store
+node_modules/
